@@ -1,4 +1,6 @@
-# Pariwisata Jawa Barat
+## 🎡 Pariwisata Jawa Barat 🏞️
+Eksplorasi Destinasi Wisata Jawa Barat dengan Dashboard Interaktif RShiny </p>
+📌 *Jelajahi keindahan alam, budaya, dan sejarah Jawa Barat dalam satu platform!*
 
 <p align="center">
   <img width="900" height="500" src="assets/images/header.png">
@@ -7,7 +9,6 @@
 ## :classical_building: Menu
 
 - [Welcome](#basecampy-welcome)
-- [Deskripsi](#spiral_notepad-deskripsi)
 - [Tampilan Menu Utama](#clapper-tampilan-menu-utama)
 - [Demo](#film_projector-demo)
 - [Features](#sparkles-fitur-aplikasi)
@@ -20,7 +21,7 @@
 ## :basecampy: Welcome
 
 Selamat datang di **Pariwisata Jawa Barat**! 
-Platform ini menyajikan informasi lengkap tentang destinasi wisata di Jawa Barat. Website ini dikembangkan untuk membantu wisatawan menemukan dan mengeksplorasi keindahan alam serta budaya Jawa Barat.
+Jawa Barat merupakan salah satu provinsi yang terletak di pulau Jawa dengan motto "*Gemah Ripah Repeh Rapih*". Platform ini menyajikan informasi lengkap tentang destinasi wisata di Jawa Barat. Seperti :</p>
 - **Pantai** 🌊
 - **Wisata Air** 💦
 - **Wisata Alam** 🌳
@@ -28,9 +29,8 @@ Platform ini menyajikan informasi lengkap tentang destinasi wisata di Jawa Barat
 - **Wisata Keagamaan** 🕌
 - **Wisata Sejarah** 🏛️
 
-## :spiral_notepad: Deskripsi
-
-Jawa Barat merupakan salah satu provinsi yang terletak di pulau Jawa dengan motto "Gemah Ripah Repeh Rapih". Website ini dirancang untuk memudahkan wisatawan dalam menemukan destinasi wisata menarik di seluruh wilayah Jawa Barat. Project ini merupakan implementasi dari dashboard interaktif menggunakan RShiny untuk menampilkan dan menganalisis data pariwisata Jawa Barat. 
+Platfrom ini dikembangkan untuk membantu wisatawan menemukan dan mengeksplorasi keindahan alam serta budaya di seluruh wilayah Jawa Barat.</p>
+Project ini merupakan implementasi dari dashboard interaktif menggunakan RShiny untuk menampilkan dan menganalisis data pariwisata Jawa Barat. </p>
 
 🚀 Selamat menjelajah Wisata Jawa Barat! 😊
 
