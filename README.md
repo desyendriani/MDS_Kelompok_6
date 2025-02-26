@@ -3,7 +3,7 @@ Eksplorasi Destinasi Wisata Jawa Barat dengan Dashboard Interaktif RShiny </p>
 📌 *Jelajahi keindahan alam, budaya, dan sejarah Jawa Barat dalam satu platform!*
 
 <p align="center">
-  <img width="900" height="500" src="assets/images/header.png">
+  <img width="900" height="500" src="https://github.com/desyendriani/MDS_Kelompok_6/blob/main/Image/Biru%20dan%20Putih%20Simpel%20Selamat%20Datang%20Bali%20YouTube%20Intro%20Video%20(1).gif">
 </p>
 
 ## :classical_building: Menu
