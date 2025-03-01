@@ -282,35 +282,48 @@ CREATE TABLE IF NOT EXISTS detail_wisata (
 
 **Kelompok 6**
 
-**🖥️ Front End Developer:** [I Gusti Ngurah Sentana Putra](https://github.com/ngurahsentana24)
-  - Pengembangan ui.R
-  - Desain interface dan komponen
-  - Implementasi CSS 
-  - User experience optimization
+</p>
+<img src="https://github.com/desyendriani/MDS_Kelompok_6/blob/main/Image/Alun-Alun%20Kota%20Banjar%20-%201.jpg?raw=true" width="500" align="left" style="margin-right: 50px;">  
 
-**Back End Developer:** [Muh.Sunan](https://github.com/mhmmd25)
+   **🖥️ Front End Developer:** <br>
+   [I Gusti Ngurah Sentana Putra (M0501241019)](https://github.com/ngurahsentana24) <br>
+         - Pengembangan ui.R <br>
+         - Desain interface dan komponen<br> 
+         - Implementasi CSS <br>
+         - User experience optimization<br>
+
+         Github    : ngurahsentana24
+         Instagram : @ngurahsentana24
+<br>
+<br>
+<br>
+<br>
+
+**Back End Developer:** [Muh. Sunan (M0501241018)](https://github.com/mhmmd25)
   - Pengembangan server.R
   - Implementasi logika bisnis
   - API development
   - Data processing
 
-**Database Manager:** [Desy](https://github.com/desyendriani)
+**Database Manager:** [Desy Endriani (M0501241051)](https://github.com/desyendriani)
   - Manajemen database
   - Data administration
   - Backup dan recovery
   - Performance monitoring
 
-**Database Designer:** [Rara](https://github.com/zahralatifah)
+**Database Designer:** [Latifah Zahra (M0501241075)](https://github.com/zahralatifah)
   - Perancangan struktur database
   - Schema design
   - Query optimization
   - Database architecture
 
-**Technical Writer:** [Fani Fahira ](https://github.com/fanifahira)
+**Technical Writer:** [Fani Fahira (M0501241052) ](https://github.com/fanifahira)
   - Dokumentasi teknis
   - User guide
   - Testing dan QA
   - Knowledge base management
 
  **Lisensi**: Proyek ini dibuat untuk keperluan akademik dan bersifat open-source.
+
+ 
 
