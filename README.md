@@ -1,4 +1,5 @@
 ## 🎡 Pariwisata Jawa Barat 🏞️
+
 Eksplorasi Destinasi Wisata Jawa Barat dengan Dashboard Interaktif RShiny </p>
 📌 *Jelajahi keindahan alam, budaya, dan sejarah Jawa Barat dalam satu platform!*
 
@@ -20,7 +21,7 @@ Eksplorasi Destinasi Wisata Jawa Barat dengan Dashboard Interaktif RShiny </p>
 
 ## :basecampy: Welcome
 
-Selamat datang di **Pariwisata Jawa Barat**! 
+Selamat datang di **Pariwisata Jawa Barat**! </p>
 Jawa Barat merupakan salah satu provinsi yang terletak di pulau Jawa dengan motto "*Gemah Ripah Repeh Rapih*". Platform ini menyajikan informasi lengkap tentang destinasi wisata di Jawa Barat. Seperti :</p>
 - **Pantai** 🌊
 - **Wisata Air** 💦
@@ -29,22 +30,9 @@ Jawa Barat merupakan salah satu provinsi yang terletak di pulau Jawa dengan mott
 - **Wisata Keagamaan** 🕌
 - **Wisata Sejarah** 🏛️
 
-Platfrom ini dikembangkan untuk membantu wisatawan menemukan dan mengeksplorasi keindahan alam serta budaya di seluruh wilayah Jawa Barat.</p>
-Project ini merupakan implementasi dari dashboard interaktif menggunakan RShiny untuk menampilkan dan menganalisis data pariwisata Jawa Barat. </p>
+Platfrom ini dikembangkan untuk membantu wisatawan menemukan dan mengeksplorasi keindahan alam serta budaya di seluruh wilayah Jawa Barat dan merupakan implementasi dari dashboard interaktif menggunakan RShiny untuk menampilkan dan menganalisis data pariwisata Jawa Barat. </p>
 
 🚀 Selamat menjelajah Wisata Jawa Barat! 😊
-
-### Packages R
-- `shiny` dan `shinydashboard` untuk pembuatan dashboard interaktif
-- `DT` untuk menampilkan data tables
-- `dplyr` untuk manipulasi data
-- `ggplot2` untuk visualisasi
-- `leaflet` untuk peta interaktif
-
-### Software
-- R Studio
-- TablePlus untuk manajemen database
-- Git & GitHub untuk version control
 
 ## :clapper: Tampilan Menu Utama
 Berikut tampilan dashboard RShiny:
@@ -78,6 +66,24 @@ Website **Pariwisata Jawa Barat** dilengkapi dengan berbagai fitur yang mempermu
 - **Rekomendasi Wisata** 🌟  
   Sistem memberikan rekomendasi destinasi wisata berdasarkan kategori yang paling banyak diminati oleh wisatawan.
 
+### Software
+- R Studio
+- TablePlus untuk manajemen database
+- Git & GitHub untuk version control
+
+### Packages R
+- `shiny` dan `shinydashboard` untuk pembuatan dashboard interaktif.
+- `DT` untuk menampilkan data tables.
+- `dplyr` untuk manipulasi data.
+- `ggplot2` untuk visualisasi.
+- `leaflet` untuk peta interaktif.
+
+Pada pembuatan Data Base
+- `RMySQL` untuk koneksi dan eksekusi query MySQL dari R.
+- `BI` sebagai antarmuka standar untuk database di R.
+- `glue` untuk menyusun query SQL secara dinamis.
+- `readr`untuk membaca dan menulis file CSV/TSV dengan cepat.
+- `tools` untuk manipulasi file dan path.
 
 ## :atom: Skema
 
