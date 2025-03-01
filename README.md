@@ -4,7 +4,7 @@ Eksplorasi Destinasi Wisata Jawa Barat dengan Dashboard Interaktif RShiny </p>
 📌 *Jelajahi keindahan alam, budaya, dan sejarah Jawa Barat dalam satu platform!*
 
 <p align="center">
-  <img width="900" height="500" src="https://github.com/desyendriani/MDS_Kelompok_6/blob/main/Image/Header.ReadMe.gif">
+   <img width="900" height="500" src="https://raw.githubusercontent.com/desyendriani/MDS_Kelompok_6/main/Image/Header.ReadMe.gif">
 </p>
 
 ## :classical_building: Menu
