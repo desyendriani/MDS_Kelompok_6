@@ -4,7 +4,7 @@ Eksplorasi Destinasi Wisata Jawa Barat dengan Dashboard Interaktif RShiny </p>
 📌 *Jelajahi keindahan alam, budaya, dan sejarah Jawa Barat dalam satu platform!*
 
 <p align="center">
-  <img width="900" height="500" src="https://github.com/desyendriani/MDS_Kelompok_6/blob/main/Image/Biru%20dan%20Putih%20Simpel%20Selamat%20Datang%20Bali%20YouTube%20Intro%20Video%20(1).gif">
+  <img width="900" height="500" src="https://github.com/desyendriani/MDS_Kelompok_6/blob/main/Image/Header.ReadMe.gif">
 </p>
 
 ## :classical_building: Menu
@@ -66,12 +66,12 @@ Website **Pariwisata Jawa Barat** dilengkapi dengan berbagai fitur yang mempermu
 - **Rekomendasi Wisata** 🌟  
   Sistem memberikan rekomendasi destinasi wisata berdasarkan kategori yang paling banyak diminati oleh wisatawan.
 
-### Software
+### 💻 Software  
 - R Studio
 - TablePlus untuk manajemen database
 - Git & GitHub untuk version control
 
-### Packages R
+## :package: Packages R  
 - `shiny` dan `shinydashboard` untuk pembuatan dashboard interaktif.
 - `DT` untuk menampilkan data tables.
 - `dplyr` untuk manipulasi data.
