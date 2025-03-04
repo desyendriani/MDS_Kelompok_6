@@ -260,23 +260,27 @@ CREATE TABLE IF NOT EXISTS detail_wisata (
 ```
 
 ## :file_folder: Struktur Project
-```
 .
-├── app/
-│   ├── server.R          # Logic server RShiny
-│   ├── ui.R              # Interface RShiny
-│   └── global.R          # Global variables dan functions
-├── data/
-│   ├── raw/              # Data mentah
-│   └── processed/        # Data yang sudah diolah
-│   └── database/         # Rmd Database
-├── Image/
-│   ├── images/           # Gambar-gambar yang digunakan
-├── scripts/
-│   ├── data_prep.R       # Script pengolahan data
-│   └── functions.R       # Helper functions
-└── README.md
-```
+├── app/  
+│   ├── ui.r                 # Interface untuk aplikasi RShiny  
+│  
+├── data/  
+│   ├── data                 # Folder utama penyimpanan data  
+│   ├── detail_kab.csv       # Data detail kabupaten  
+│   ├── detail_wisata.csv    # Data detail tempat wisata  
+│   ├── kabupaten_kota.csv   # Data daftar kabupaten/kota  
+│   ├── kecamatan.csv        # Data kecamatan  
+│   ├── kelurahan.csv        # Data kelurahan  
+│   ├── tempat_wisata.csv    # Data tempat wisata  
+│  
+├── doc/  
+│   ├── ERD                 # Dokumentasi ERD (Entity Relationship Diagram)  
+│  
+├── src/  
+│   ├── Wisata Jabar.Rmd     # Laporan atau dokumentasi dalam format RMarkdown  
+│  
+├── Image/                   # Folder untuk menyimpan gambar atau assets  
+
 
 ## :owl: Tim Pengembang
 
