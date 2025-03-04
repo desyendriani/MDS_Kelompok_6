@@ -106,8 +106,11 @@ Pada pembuatan Data Base
 Skema perancangan sistem kami:
 
 ## :books: ERD
-
 ERD (Entity Relationship Diagram) menggambarkan hubungan antar entitas dalam sistem:
+
+<p align="center">
+   <img width="900" height="500" src="https://github.com/desyendriani/MDS_Kelompok_6/blob/main/doc/ERD.jpg">
+</p>
 
 ## :open_book: Deskripsi Data
 
