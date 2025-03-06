@@ -321,6 +321,13 @@ CREATE TABLE IF NOT EXISTS detail_wisata (
   - API development
   - Data processing
 
+         Github    : mhmmd25
+         Instagram : @m_sunan25
+<br>
+<br>
+<br>
+<br>
+
 **Database Manager:** [Desy Endriani (M0501241051)](https://github.com/desyendriani)
   - Manajemen database
   - Data administration
