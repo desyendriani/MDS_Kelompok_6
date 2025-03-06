@@ -1,0 +1,340 @@
+---
+title: "Wisata_Jabar"
+author: "Desy Endriani"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+## Database Wisata Jawa Barat
+
+```{r}
+# Install package yang diperlukan
+## install.packages(c("DBI", "RMySQL", "glue")) 
+```
+
+```{r}
+library(RMySQL)
+library(DBI)
+library(glue)
+library(readr)
+library(tools)
+```
+
+```{r}
+# 1. Konfigurasi Database DBngin
+db_config <- list(
+  host = "127.0.0.1",
+   port = 3306,          # Port MySQL di DBngin
+   user = "root",
+   password = "",
+   dbname = "wisata_jabar"    # Nama database yang akan dibuat
+ )
+ #Abaikan tanda "#"
+```
+
+```{r}
+# 2. Membuat koneksi ke MySQL server (tanpa database spesifik)
+con <- dbConnect(
+  MySQL(),
+  host = db_config$host,
+  port = db_config$port,
+  user = db_config$user,
+  password = db_config$password
+ )
+
+# 3. Membuat database jika belum ada
+ tryCatch({
+  dbExecute(con, glue("CREATE DATABASE IF NOT EXISTS {db_config$dbname}"))
+  message("Database ", db_config$dbname, " berhasil dibuat/ditemukan")
+ }, error = function(e) {
+  message("Gagal membuat database: ", e$message)
+ })
+```
+
+```{r}
+# 4. Membuat struktur tabel
+ table_definitions <- list(
+  kabupaten_kota = "
+    CREATE TABLE IF NOT EXISTS kabupaten_kota (
+      Kode_Kabkot VARCHAR(100) PRIMARY KEY,
+      Nama_Kabkot VARCHAR(100) NOT NULL,
+      Ibukota VARCHAR(100) NOT NULL,
+      Jml_pddk INT
+    )
+  ",
+  
+  kecamatan = "
+    CREATE TABLE IF NOT EXISTS kecamatan (
+      Kode_Kec VARCHAR(100) PRIMARY KEY,
+      Nama_Kec VARCHAR(100) NOT NULL,
+      Kode_Kabkot VARCHAR(100) NOT NULL,
+      Jml_pddk_kec INT,
+      FOREIGN KEY (Kode_Kabkot) REFERENCES kabupaten_kota(Kode_Kabkot)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
+    )
+  "
+  ,
+  
+  kelurahan = "
+    CREATE TABLE IF NOT EXISTS kelurahan (
+      Kode_Kel VARCHAR(100) PRIMARY KEY,
+      Nama_Kel VARCHAR(100) NOT NULL,
+      Kode_Kec VARCHAR(100) NOT NULL,
+      Jml_pddk_kel INT,
+      FOREIGN KEY (Kode_Kec) REFERENCES kecamatan(Kode_Kec)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
+    )
+  "
+  ,
+   tempat_wisata = "
+    CREATE TABLE IF NOT EXISTS tempat_wisata (
+      Kode_Wisata VARCHAR(100) PRIMARY KEY,
+      Tipe_Wisata VARCHAR(100),
+      Nama_Wisata VARCHAR(100) NOT NULL,
+      Kode_Kabkot VARCHAR(100) NOT NULL,
+      Kode_Kec VARCHAR(100) NOT NULL,
+      Kode_Kel VARCHAR(100) NOT NULL,
+      Deskripsi TEXT,
+      Harga_Tiket VARCHAR(100),
+      Rating DECIMAL(3,1) CHECK (rating BETWEEN 0.0 AND 5.0),
+      Alamat VARCHAR(255),
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (Kode_Kabkot) REFERENCES kabupaten_kota(Kode_Kabkot)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
+      FOREIGN KEY (Kode_Kec) REFERENCES kecamatan(Kode_Kec)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
+      FOREIGN KEY (Kode_Kel) REFERENCES kelurahan(Kode_Kel)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
+    )
+  ",
+  
+  detail_wisata = "
+    CREATE TABLE IF NOT EXISTS detail_wisata (
+      Kode_Wisata VARCHAR(100) PRIMARY KEY,
+      Jumlah_Ulasan INT,
+      Latitude  DECIMAL(9, 6),
+      Longitude DECIMAL(9, 6),
+      Image TEXT,
+      FOREIGN KEY (kode_wisata) REFERENCES tempat_wisata(kode_wisata)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
+    )
+  "
+  ,
+  
+  detail_kab = "
+    CREATE TABLE IF NOT EXISTS detail_kab (
+      Kode_Kabkot VARCHAR(100) PRIMARY KEY,
+      Jumlah_Masjid INT,
+      Jumlah_Restoran INT,
+      Jumlah_Wisatawan INT,
+      PDRB DECIMAL(15,2),
+      FOREIGN KEY (Kode_Kabkot) REFERENCES kabupaten_kota (Kode_Kabkot)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
+    )
+  "
+ )
+```
+
+## Memasukan Data ke Database
+
+```{r}
+# 5. Eksekusi pembuatan tabel
+tryCatch({
+   #Buka koneksi ke database spesifik
+  con_db <- dbConnect(
+    MySQL(),
+    host = db_config$host,
+    port = db_config$port,
+    user = db_config$user,
+    password = db_config$password,
+    dbname = db_config$dbname
+  )
+  
+  # Mulai transaksi
+  dbBegin(con_db)
+  
+  # Buat semua tabel
+  for (table_name in names(table_definitions)) {
+    dbExecute(con_db, table_definitions[[table_name]])
+    message("Tabel ", table_name, " berhasil dibuat")
+  }
+  
+  # Commit transaksi
+  dbCommit(con_db)
+  
+  # Verifikasi tabel yang dibuat
+  existing_tables <- dbGetQuery(con_db, "SHOW TABLES")
+  message("\nTabel yang tersedia di database ", db_config$dbname, ":")
+  print(existing_tables)
+  
+ }, error = function(e) {
+  dbRollback(con_db)
+  message("Error membuat tabel: ", e$message)
+ })
+```
+
+```{r}
+tempat_wisata <- read.csv("https://raw.githubusercontent.com/desyendriani/MDS_Kelompok_6/refs/heads/main/data/tempat_wisata.csv", sep = ";")
+```
+
+```{r}
+kabupaten_kota <- read.csv("https://raw.githubusercontent.com/desyendriani/MDS_Kelompok_6/refs/heads/main/data/kabupaten_kota.csv", sep = ";")
+kecamatan <- read.csv("https://raw.githubusercontent.com/desyendriani/MDS_Kelompok_6/refs/heads/main/data/kecamatan.csv", sep = ";")
+kelurahan <- read.csv("https://raw.githubusercontent.com/desyendriani/MDS_Kelompok_6/refs/heads/main/data/kelurahan.csv", sep = ";")
+detail_wisata <- read.csv("https://raw.githubusercontent.com/desyendriani/MDS_Kelompok_6/refs/heads/main/data/detail_wisata.csv", sep = ";")
+detail_kab <- read.csv("https://raw.githubusercontent.com/desyendriani/MDS_Kelompok_6/refs/heads/main/data/detail_kab.csv", sep = ",")
+```
+
+```{r}
+# Pastikan nama kolom sesuai dengan tabel dalam MySQL
+colnames(kabupaten_kota) <- c("Kode_Kabkot", "Nama_Kabkot", "Ibukota", "Jml_pddk")
+colnames(kecamatan) <-  c("Kode_Kabkot", "Kode_Kec", "Nama_Kec", "Jml_pddk_kec")
+colnames(kelurahan) <- c("Kode_Kec", "Kode_Kel", "Nama_Kel", "Jml_pddk_kel")
+colnames(tempat_wisata) <- c("Kode_Wisata", "Tipe_Wisata", "Nama_Wisata",
+                                "Kode_Kabkot", "Kode_Kec", "Kode_Kel", "Deskripsi",
+                                "Harga_Tiket", "Rating", "Alamat")
+colnames(detail_wisata) <- c("Kode_Wisata", "Jumlah_Ulasan", "Latitude",
+                                "Longitude", "Image")
+colnames(detail_kab) <- c("Kode_Kab", "Jumlah_Masjid", "Jumlah_Restoran",
+                                "Jumlah.Wisatawan", "PDRB")
+```
+
+```{r}
+con_db <- dbConnect(
+  MySQL(),
+  host = db_config$host,
+  port = db_config$port,
+  user = db_config$user,
+  password = db_config$password,
+  dbname = db_config$dbname
+ )
+
+ #Lihat struktur tabel tempat wisata
+ #dbGetQuery(con_db, "DESCRIBE kelurahan")
+ #dbDisconnect(con_db)
+```
+
+```{r}
+# Masukkan data ke tabel kabupaten secara manual
+for (i in 1:nrow(kabupaten_kota)) {
+  query <- sprintf(
+    "INSERT INTO kabupaten_kota (Kode_Kabkot, Nama_Kabkot, Ibukota, Jml_pddk) VALUES ('%s', '%s', '%s', %d)",
+    kabupaten_kota$Kode_Kabkot[i],
+    kabupaten_kota$Nama_Kabkot[i],
+    kabupaten_kota$Ibukota[i],
+    kabupaten_kota$Jml_pddk[i]
+  )
+  dbExecute(con_db, query)
+}
+
+```
+
+```{r}
+# Masukkan data ke tabel kecamatan secara manual
+for (i in 1:nrow(kecamatan)) {
+  query <- sprintf(
+    "INSERT INTO kecamatan (Kode_Kec, Nama_Kec, Kode_Kabkot, Jml_pddk_kec) VALUES ('%s', '%s', '%s', %d)",
+    kecamatan$Kode_Kec[i],
+    kecamatan$Nama_Kec[i],
+    kecamatan$Kode_Kabkot[i],
+    kecamatan$Jml_pddk_kec[i]
+  )
+  dbExecute(con_db, query)
+}
+```
+
+```{r}
+# Masukkan data ke tabel kelurahan secara manual
+for (i in 1:nrow(kelurahan)) {
+  query <- sprintf(
+    "INSERT INTO kelurahan (Kode_Kel, Nama_Kel, Kode_Kec, Jml_pddk_kel) VALUES ('%s', '%s', '%s', %d)",
+    kelurahan$Kode_Kel[i],
+    kelurahan$Nama_Kel[i],
+    kelurahan$Kode_Kec[i],
+    kelurahan$Jml_pddk_kel[i]
+  )
+  dbExecute(con_db, query)
+}
+```
+
+```{r}
+# Masukkan data ke tabel tempat wisata secara manual
+for (i in 1:nrow(tempat_wisata)) {
+  query <- sprintf(
+    "INSERT INTO tempat_wisata (kode_wisata , tipe_wisata , nama_wisata , Kode_Kabkot, Kode_Kec, Kode_Kel, deskripsi,harga_tiket, rating, alamat) VALUES ('%s', '%s', '%s','%s', '%s', '%s','%s', '%s' ,%f, '%s')",
+    tempat_wisata$Kode_Wisata[i],
+    tempat_wisata$Tipe_Wisata[i],
+    tempat_wisata$Nama_Wisata[i],
+    tempat_wisata$Kode_Kabkot[i],
+    tempat_wisata$Kode_Kec[i],
+    tempat_wisata$Kode_Kel[i],
+    tempat_wisata$Deskripsi[i],
+    tempat_wisata$Harga_Tiket[i],
+    tempat_wisata$Rating[i],
+    tempat_wisata$Alamat[i]
+  )
+  dbExecute(con_db, query)
+}
+```
+
+```{r}
+# Masukkan data ke tabel kelurahan secara manual
+for (i in 1:nrow(detail_wisata)) {
+  query <- sprintf(
+    "INSERT INTO detail_wisata (kode_wisata, jumlah_ulasan, latitude, longitude,
+    image) VALUES ('%s', '%f', '%s', '%s', '%s')",
+    detail_wisata$Kode_Wisata[i],
+    detail_wisata$Jumlah_Ulasan[i],
+    detail_wisata$Latitude[i],
+    detail_wisata$Longitude[i],
+    detail_wisata$Image[i]
+  )
+  print(query)
+  dbExecute(con_db, query)
+}
+```
+
+```{r}
+for (i in 1:nrow(detail_kab)) {
+  pdrb_value <- round(as.numeric(detail_kab$PDRB[i]), 2)  # Pastikan nilai PDRB numerik dan dibulatkan 2 desimal
+  
+  query <- sprintf(
+    "INSERT INTO detail_kab (Kode_Kabkot, jumlah_masjid, jumlah_restoran, jumlah_wisatawan, PDRB) 
+     VALUES ('%s', %d, %d, %d, %.2f)",
+    detail_kab$Kode_Kab[i],
+    detail_kab$Jumlah_Masjid[i],
+    detail_kab$Jumlah_Restoran[i],
+    detail_kab$Jumlah.Wisatawan[i],
+    pdrb_value
+  )
+  
+  print(query)  # Debugging untuk melihat query sebelum dieksekusi
+  dbExecute(con_db, query)
+}
+
+```
+
+#Cek data pada tabel
+
+```{r}
+df <- dbGetQuery(con_db, "SELECT * FROM detail_kab")
+View(df)
+```
+
+```{r}
+query <- "DROP DATABASE IF EXISTS wisata_jabar"
+dbExecute(con_db, query)
+```
+
+```{r}
+
+# Menutup koneksi setelah selesai
+dbDisconnect(con_db)
+```
