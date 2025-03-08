@@ -1,47 +1,3 @@
-## Explore Jabar 🏞️
-
-   
-## :classical_building: Menu
-
-<table>
-  <tr>
-    <td style="vertical-align: top; width: 50%;">
-      <ul>
-        <li><a href="#basecampy-welcome">Welcome</a></li>
-        <li><a href="#clapper-tampilan-menu-utama">Tampilan Menu Utama</a></li>
-        <li><a href="#film_projector-demo">Demo</a></li>
-        <li><a href="#sparkles-fitur-aplikasi">Fitur Aplikasi</a></li>
-        <li><a href="#computer-software">Software</a></li>
-        <li><a href="#package-packages-r">Packages R</a></li>
-      </ul>
-    </td>
-    <td style="vertical-align: top; width: 50%;">
-      <ul>
-      </ul>
-        <li><a href="#atom-skema">Skema</a></li>
-        <li><a href="#books-erd">ERD</a></li>
-        <li><a href="#open_book-deskripsi-data">Deskripsi Data</a></li>
-        <li><a href="#file_folder-struktur-project">Folder Structure</a></li>
-        <li><a href="#owl-tim-pengembang">Our Team</a></li>
-      </ul>
-    </td>
-  </tr>
-</table>
-
-## :basecampy: Welcome
-
-Selamat datang di **Explore Jabar**! </p>
-Jawa Barat merupakan salah satu provinsi yang terletak di pulau Jawa dengan motto "*Gemah Ripah Repeh Rapih*". Platform ini menyajikan informasi lengkap tentang destinasi wisata di Jawa Barat. Seperti :</p>
-- **Pantai** 🌊
-- **Wisata Air** 💦
-- **Wisata Alam** 🌳
-- **Wisata Edukasi** 📚
-- **Wisata Keagamaan** 🕌
-- **Wisata Sejarah** 🏛️
-
-Platfrom ini dikembangkan untuk membantu wisatawan menemukan dan mengeksplorasi keindahan alam serta budaya di seluruh wilayah Jawa Barat. Serta, untuk memberikan infromasi perkembangan pariwisata untuk Pemerintah Provisi Jawa Barat, Pemerintah Daerah Kab/Kota maupun wilayah administratif Kecamatan yang ada di Jawa Barat. </p>
-
-
 ## :owl: Tim Pengembang
 
 **Kelompok 6**
@@ -63,11 +19,15 @@ Instagram : @ngurahsentana24
 <br>
 <br>
 
+</p>
+<img src="https://github.com/desyendriani/MDS_Kelompok_6/blob/main/Image/Team/SUNAN.png" width="300" align="left" style="margin-right: 20px;">
+
+
 **Back End Developer:** [Muh. Sunan (M0501241018)](https://github.com/mhmmd25)
-  - Pengembangan server.R
-  - Implementasi logika bisnis
-  - API development
-  - Data processing
+- Pengembangan server.R
+- Implementasi logika bisnis
+- API development
+- Data processing
 
 
 <br>
