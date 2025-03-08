@@ -1,14 +1,22 @@
-## Explore Jabar 🏞️
+![image](https://github.com/user-attachments/assets/9dadcd91-9d26-45ec-96dc-47a0958de15c)## Explore Jabar 🏞️
 📌 *Jelajahi keindahan alam, budaya, dan sejarah Jawa Barat dalam satu platform!*
 
 <p align="center">
    <img width="900" height="500" src="https://raw.githubusercontent.com/desyendriani/MDS_Kelompok_6/main/Image/Header.ReadMe.gif">
+
+
+   
 </p>
 
 **Explore Jabar** adalah aplikasi berbasis RShiny yang bertujuan untuk menyediakan informasi terkini tentang pariwisata di wilayah Jawa Barat. Aplikasi ini menggunakan data dari berbagai sumber untuk menampilkan analisis dan visualisasi yang membantu pengguna dalam merencanakan perjalanan wisata mereka. </p>
 
+
+
 *Satu Klik untuk Eksplorasi Tanpa Batas!* 🚀
 
+  <img width="900" height="500" src="https://github.com/desyendriani/MDS_Kelompok_6/blob/main/Image/HEADER1.gif?raw=true">
+ 
+   
 ## :classical_building: Menu
 
 <table>
@@ -48,6 +56,8 @@ Jawa Barat merupakan salah satu provinsi yang terletak di pulau Jawa dengan mott
 - **Wisata Sejarah** 🏛️
 
 Platfrom ini dikembangkan untuk membantu wisatawan menemukan dan mengeksplorasi keindahan alam serta budaya di seluruh wilayah Jawa Barat. </p>
+Tidak hanya itu, dashbord ini juga bermanfaat untuk Pemerintah Provisi Jawa Barat, Pemerintah Daerah Kab/Kota maupun wilayah administratif Kecamatan yang ada di jawa barat.
+
 🚀 Selamat menjelajah Wisata di Jawa Barat! 😊
 
 ## :clapper: Tampilan Menu Utama
@@ -118,8 +128,17 @@ Skema perancangan sistem kami:
 ERD (Entity Relationship Diagram) menggambarkan hubungan antar entitas dalam sistem:
 
 <p align="center">
-   <img width="900" height="500" src="https://github.com/desyendriani/MDS_Kelompok_6/blob/main/doc/ERD.jpg">
+   <img width="900" height="900" src="https://github.com/desyendriani/MDS_Kelompok_6/blob/main/doc/Skema.jpg">
 </p>
+
+
+## :books: Referential Integrity Constraint
+ERD (Entity Relationship Diagram) menggambarkan hubungan antar entitas dalam sistem:
+
+<p align="center">
+   <img width="900" height="900" src="https://github.com/desyendriani/MDS_Kelompok_6/blob/main/doc/RIC2.jpg">
+</p>
+
 
 ## :open_book: Deskripsi Data
 
