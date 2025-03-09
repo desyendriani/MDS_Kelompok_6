@@ -386,7 +386,7 @@ CREATE TABLE IF NOT EXISTS detail_wisata (
 │  
 ├── doc/  
 │   ├── ERD/                 # Dokumentasi ERD (Entity Relationship Diagram)  
-│   ├── RIC/                 # Dokumentasi lainnya (rename jika perlu)  
+│   ├── RIC/                 # Dokumentasi lainnya
 │  
 ├── src/  
 │   ├── Wisata_Jabar.Rmd     # Laporan atau dokumentasi dalam format RMarkdown  
