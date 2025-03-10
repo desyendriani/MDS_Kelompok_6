@@ -1,558 +1,12 @@
-#---------------------- Library --------------------------
-library(shiny)
-library(shinydashboard)
-library(shinydashboardPlus)
-library(DT)
-library(bs4Dash)
-library(plotly)
-library(slickR)
-library(ggplot2)
-library(dplyr)
-library(readr)
-library(leaflet)
-library(writexl)
-library(rmarkdown)
-library(scales)
-
-#----------------(Data)------------------
-# Load data from URLs
-data_wisata <- read_csv("https://raw.githubusercontent.com/ngurahsentana24/ngurah/refs/heads/ngurahsentana24-patch-1/clean_wisata%20(1).csv")
-data_kelurahan <- read_tsv("https://raw.githubusercontent.com/ngurahsentana24/ngurah/ngurahsentana24-patch-1/Entity%20Kelurahan.csv")
-data_kecamatan <- read_tsv("https://raw.githubusercontent.com/ngurahsentana24/ngurah/ngurahsentana24-patch-1/Entity%20Kecamatan.csv")
-data_kab <- read_tsv("https://raw.githubusercontent.com/ngurahsentana24/ngurah/ngurahsentana24-patch-1/Entity%20Kab-Kota.csv")
-detail <- read_csv("https://raw.githubusercontent.com/ngurahsentana24/ngurah/refs/heads/ngurahsentana24-patch-1/Entiti_Detail_Wisata(%2Bimage)%20(1)%20(1).csv")
-detail_kab <- read_csv("https://raw.githubusercontent.com/ngurahsentana24/ngurah/refs/heads/ngurahsentana24-patch-1/Detail_Kab%20(1).csv")
-
-# Join data
-data_gabungan <- data_wisata %>%
-  left_join(data_kelurahan, by = c("Kode_Kec" = "Kode_Kec", "Kode_Kel" = "Kode_Kel")) %>%
-  left_join(data_kecamatan, by = c("Kode_Kabkot" = "Kode_Kabkot", "Kode_Kec" = "Kode_Kec")) %>%
-  left_join(data_kab, by = "Kode_Kabkot") %>%
-  left_join(detail, by = "Kode_Wisata") %>%
-  left_join(detail_kab, by = "Kode_Kabkot")
-
-# Convert Rating to numeric & replace NA with 0
-data_gabungan$Rating <- as.numeric(as.character(data_gabungan$Rating))
-data_gabungan$Rating[is.na(data_gabungan$Rating)] <- 0  # Replace NA with 0
-
-#-------------------- UI (Tampilan Front-End) ---------------
-ui <- dashboardPage(
-  ##------------------------ Header -----------------------------
-  dashboardHeader(
-    title = div(style = "text-align: center;", 
-                img(src = "https://upload.wikimedia.org/wikipedia/commons/9/99/Coat_of_arms_of_West_Java.svg", height = 100, width = 100, style = "margin-bottom: 15px;"), 
-                h1("Jawa Barat", style = "color: #00000; font-size: 38px; font-weight: bold; margin-top: -20px;"), 
-                p(strong("Gemah Ripah Repeh Rapih"), style = "color: #00000; background-color: #f8e5b3; font-size: 14px; margin-top: -5px; font-family: 'Poplin', sans-serif;"), 
-                textOutput("tanggal"),
-                tags$hr(style = "border-top: 2px solid #007bff; margin: 10px 0;")  # Horizontal line
-    ), 
-    titleWidth = 400
-  ),
-  
-  ##------------------------ SideBar -----------------------------
-  dashboardSidebar(
-    collapsed = FALSE,
-    sidebarMenu(
-      menuItem("Home", tabName = "beranda", icon = icon("home")),
-      menuItem("Wisata", tabName = "wisata", icon = icon("mountain-sun")),
-      menuItem("Kabupaten/Kota", tabName = "kota", icon = icon("building")),
-      menuItem("Kecamatan", tabName = "kecamatan", icon = icon("map-marker-alt")),
-      menuItem("Team", tabName = "info", icon = icon("users-line"))
-    )
-  ),
-  
-  ##------------------------  Body --------------------------------
-  dashboardBody(
-    tags$head(
-      tags$style(HTML("
-      .youtube-video {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        z-index: -1; /* Send it to the back */
-      }
-    "))
-    ),
-    tags$iframe(
-      src = "https://www.youtube.com/embed/aKtb7Y3qOck?autoplay=1&loop=1&playlist=aKtb7Y3qOck",
-      width = "100%",
-      height = "100%",
-      frameborder = "0",
-      allow = "autoplay; encrypted-media",
-      allowfullscreen = TRUE,
-      class = "youtube-video"
-    ),
-    tabItems(
-      ###----------------------------- Home ---------------------------------
-      tabItem(
-        tabName = "beranda",
-        jumbotron(
-          title = div(
-            img(src = "https://upload.wikimedia.org/wikipedia/commons/9/99/Coat_of_arms_of_West_Java.svg", height = 300, width = 350, style = "font-size:90px;font-weight:bold;display: flex;align-items: center"),
-            "Pariwisata Jawa Barat",
-            style = "font-size:50px;font-weight:bold; display: flex; align-items: center;"
-          ),
-          lead = span("Selamat Datang di Jawa Barat!", style = "font-size:20px;font-weight:bold; background-color: #f8e5b3; padding: 10px; border-radius: 5px;"),
-          href = "https://disparbud.jabarprov.go.id",
-          status = "warning",
-        ),
-        fluidRow(
-          box(title = "Keindahan Alam Jawa Barat", status = "primary", width = 12,
-              slickROutput("slideshow", width = "100%", height = "400px"))
-        ),
-        fluidRow(
-          box(title = "Video Pariwisata Jawa Barat", status = "primary", width = 12, 
-              HTML('<iframe width="100%" height="400" src="https://www.youtube.com/embed/iM4Gf9XkfKY" frameborder="0" allowfullscreen></iframe>')
-          )
-        ),
-        fluidRow(
-          column(12, align = "center",
-                 actionButton("chat_whatsapp_team", "Chat via WhatsApp", icon = icon("whatsapp"), 
-                              style = "background-color: #25D366; color: white; font-weight: bold;")
-          )
-        )
-      ),
-      
-      ###----------------------------- Wisata ---------------------------------
-      tabItem(
-        tabName = "wisata",
-        fluidRow(
-          valueBox(
-            value = div(style = "font-size: 32px; font-weight: bold;", length(data_gabungan$Kode_Wisata)),
-            subtitle = div(style = "font-size: 20px; font-weight: bold;", "Total Wisata"),
-            icon = icon("home", lib = "font-awesome"), 
-            color = "primary", 
-            width = 4
-          ),
-          valueBox( 
-            value = div(style = "font-size: 32px; font-weight: bold;", 
-                        prettyNum(sum(data_gabungan$Jumlah_Ulasan), big.mark = ".", decimal.mark = ".", digits = 2)
-            ),
-            subtitle = div(style = "font-size: 20px; font-weight: bold;", "Total Ulasan"),
-            icon = icon("users", lib = "font-awesome"), 
-            color = "danger", 
-            width = 4
-          ),
-          valueBox(
-            value = div(style = "font-size: 32px; font-weight: bold;", round(mean(data_gabungan$Rating, na.rm = TRUE), 2)),
-            subtitle = div(style = "font-size: 20px; font-weight: bold;", "Rata Rata Rating"),
-            icon = icon("star", lib = "font-awesome"), 
-            color = "primary",
-            width = 4
-          )
-        ),
-        
-        fluidRow(
-          box(title = div(style = "font-size: 20px; font-weight: bold;", "Peta Lokasi Wisata"), width = 12, 
-              leafletOutput("wisata_map", height = 500),
-              style = "border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);",
-              solidHeader = TRUE,
-              status = "primary"
-          )
-        ),
-        
-        fluidRow(
-          box(
-            title = div(
-              style = "font-size: 20px; font-weight: bold; background-color: #007bff; color: white; padding: 10px; border-radius: 10px;", 
-              "Filter Wisata"
-            ),
-            uiOutput("filter_wisata"), 
-            width = 6,
-            solidHeader = TRUE,
-            status = "primary",
-            style = "background-color: #e7f3ff;"
-          ),
-          box(
-            title = div(
-              style = "font-size: 20px; font-weight: bold; background-color: #007bff; color: white; padding: 10px; border-radius: 10px;", 
-              "Minimum Rating"
-            ),
-            sliderInput("rating_filter", "Minimum Rating:", min = 0, max = 5, value = 0, step = 0.1),
-            width = 6,
-            solidHeader = TRUE,
-            status = "primary",
-            style = "background-color: #e7f3ff;"
-          )
-        ),
-        
-        # New Box for Tourist Attractions
-        fluidRow(
-          box(title = div(style = "font-size: 20px; font-weight: bold;", "Wisata Berdasarkan Rating"), width = 6,
-              dataTableOutput("top5_wisata_table"),
-              style = "background-color: #ffffff; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);",
-              solidHeader = TRUE,
-              status = "primary"
-          ),
-          box(title = div(style = "font-size: 20px; font-weight: bold;", "Detail Wisata yang Dipilih"), width = 6,
-              uiOutput("selected_wisata_details"),
-              style = "background-color: #ffffff; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);",
-              solidHeader = TRUE,
-              status = "primary"
-          )
-        ),
-        
-        fluidRow(
-          box(title = div(style = "font-size: 20px; font-weight: bold;", "Distribusi Tipe Wisata"), width = 6, 
-              plotOutput("typePlotWisata"),
-              style = "background-color: #ffffff; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);",
-              solidHeader = TRUE,
-              status = "primary"
-          ),
-          box(title = div(style = "font-size: 20px; font-weight: bold;", "Distribusi Rating Wisata"), width = 6, 
-              plotOutput("ratingPlot"),
-              style = "background-color: #ffffff; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);",
-              solidHeader = TRUE,
-              status = "primary"
-          )
-        ),
-        fluidRow(
-          box(title = div(style = "font-size: 20px; font-weight: bold;", "Rata-rata Harga Tiket Berdasarkan Tipe Wisata"), width = 6, 
-              plotOutput("pricePlot"),
-              style = "background-color: #ffffff; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);",
-              solidHeader = TRUE,
-              status = "primary"
-          ),
-          box(title = div(style = "font-size: 20px; font-weight: bold;",  "Jumlah Wisata Berdasarkan Kabupaten"), width = 6, 
-              plotOutput("countyPlot"),
-              style = "background-color: #ffffff; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);",
-              solidHeader = TRUE,
-              status = "primary"
-          )
-        ),
-        fluidRow(
-          box(title = div(style = "font-size: 20px; font-weight: bold;",  "Pilih Jumlah Cluster"), width = 6,
-              sliderInput("num_clusters", "Jumlah Cluster:", min = 2, max = 10, value = 3),
-              solidHeader = TRUE,
-              status = "primary"
-          )
-        ),
-        fluidRow(
-          box(title = div(style = "font-size: 20px; font-weight: bold;", "Visualisasi Clustering"), width = 12,
-              plotOutput("clustering_plot"),
-              solidHeader = TRUE,
-              status = "primary"
-          )
-        ), 
-        fluidRow(
-          box(title = div(style = "font-size: 20px; font-weight: bold;", "Hasil Clustering"), width = 12,
-              tableOutput("clustering_results"),
-              solidHeader = TRUE,
-              status = "primary"
-          )
-        ),
-        
-        # Fluid row with the title "Interaktif Interaction"
-        fluidRow(
-          column(12, 
-                 h2(class = "title", "Interaktif Interaction"),
-                 p(class = "description", "Eksplorasi interaksi yang menarik!")
-          )
-        ),
-        
-        fluidRow(
-          box(
-            title = div(style = "font-size: 20px; font-weight: bold;", "Pilih Wisata untuk Total Biaya"), 
-            width = 6,
-            selectInput("selected_wisata", "Pilih Wisata", 
-                        choices = NULL, multiple = TRUE),
-            actionButton("calculate_cost", "Hitung Total Biaya", 
-                         style = "background-color: #007bff; color: white; font-weight: bold;"),
-            solidHeader = TRUE,
-            status = "primary"
-          ),
-          box(
-            title = div(style = "font-size: 20px; font-weight: bold;", "Informasi Perjalanan Wisata"), 
-            width = 6,
-            div(style = "font-size: 20px; font-weight: normal;", textOutput("total_cost")),
-            div(style = "font-size: 20px; font-weight: normal;", textOutput("total_distance")),
-            div(style = "font-size: 20px; font-weight: normal;", textOutput("fuel_consumption")),
-            div(style = "font-size: 20px; font-weight: normal;", textOutput("estimated_time")),
-            div(style = "font-size: 20px; font-weight: normal;", textOutput("grand_total")),
-            uiOutput("google_maps_link"),  # Link to Google Maps
-            downloadButton("download_data", "Download Data as Excel", 
-                           style = "background-color: #007bff; color: white; font-weight: bold;"),
-            solidHeader = TRUE,
-            status = "primary"
-          ),
-          box(
-            title = div(style = "font-size: 24px; font-weight: bold;", "Detail Wisata yang Dipilih"), 
-            width = 12,
-            dataTableOutput("selected_wisata_table"),
-            solidHeader = TRUE,
-            status = "primary"
-          )
-        ),
-        fluidRow(
-          box(title = div(style = "font-size: 20px; font-weight: bold;", "Rekomendasi Rute Wisata"), width = 12, solidHeader = TRUE, status = "primary",
-              uiOutput("filter_kabupaten_rute"),  # Dropdown for selecting districts
-              numericInput("budget", "Masukkan Budget (IDR):", value = 0, min = 0),  # Input for budget
-              radioButtons("starting_point", "Pilih Titik Awal:",
-                           choices = list("Pusat Kota Bandung" = "bandung_center",
-                                          "Bandara" = "airport",
-                                          "Pelabuhan" = "port",
-                                          "Link Google Maps" = "custom"),
-                           selected = "bandung_center"),  # Default selection
-              conditionalPanel(
-                condition = "input.starting_point == 'airport'",
-                selectInput("selected_airport", "Pilih Bandara di Jawa Barat:",
-                            choices = list(
-                              "Husein Sastranegara International Airport" = "husein_sastranegara",
-                              "Kertajati International Airport" = "kertajati",
-                              "Cijulang Nusawiru Airport" = "cijulang",
-                              "Sukabumi Airport" = "sukabumi"
-                            ),
-                            selected = "husein_sastranegara")  # Default selection
-              ),
-              conditionalPanel(
-                condition = "input.starting_point == 'port'",
-                selectInput("selected_port", "Pilih Pelabuhan di Jawa Barat:",
-                            choices = list(
-                              "Pelabuhan Patimban" = "patimban",
-                              "Pelabuhan Cirebon" = "cirebon",
-                              "Pelabuhan Muara Angke" = "muara_angke",
-                              "Pelabuhan Tanjung Priok" = "tanjung_priok"
-                            ),
-                            selected = "patimban")  # Default selection
-              ),
-              conditionalPanel(
-                condition = "input.starting_point == 'custom'",
-                textInput("custom_gmaps", "Masukkan Link Google Maps:", placeholder = "https://www.google.com/maps/...")  # Input for custom link
-              ),
-              actionButton("recommend_route", "Rekomendasikan Wisata", style = "background-color: #007bff; color: white; font-weight: bold;")
-          )
-        ),
-        fluidRow(
-          box(title = div(style = "font-size: 20px; font-weight: bold;", "Hasil Rekomendasi"), width = 12, solidHeader = TRUE, status = "primary",
-              dataTableOutput("recommended_route_table")  # Table to display recommended routes
-          )
-        ),
-        fluidRow(
-          box(title = div(style = "font-size: 20px; font-weight: bold;", "Peta Rute Wisata"), width = 12, solidHeader = TRUE, status = "primary",
-              leafletOutput("recommended_route_map", height = 500)  # Map to display recommended routes
-          )
-        ),
-      ),
-      
-      ###----------------------------- Kabupaten/Kota ---------------------------------
-      tabItem(
-        tabName = "kota",
-        fluidRow(
-          box(title = div(style = "font-size: 20px; font-weight: bold;", "Filter Kabupaten/Kota"), width = 12, solidHeader = TRUE,
-              status = "primary",
-              style = "background-color: #e7f3ff;", uiOutput("filter_kota")),
-          solidHeader = TRUE,
-          status = "primary"
-        ),
-        fluidRow(
-          valueBoxOutput("jumlah_wisata_box", width = 4),
-          valueBoxOutput("jumlah_restoran_box", width = 4),
-          valueBoxOutput("jumlah_penduduk_box", width = 4)
-        ),
-        fluidRow(
-          valueBoxOutput("jumlah_wisatawan_box", width = 4),
-          valueBoxOutput("pdrb_box", width = 4),
-          valueBoxOutput("jumlah_masjid_box", width = 4)
-        ),
-        fluidRow(
-          box(title = div(style = "font-size: 20px; font-weight: bold;", "Distribusi Tipe Wisata"), width =12, solidHeader = TRUE,
-              status = "primary",plotOutput("typePlot")),
-          box(title = div(style = "font-size: 20px; font-weight: bold;", "Data Kabupaten"), width = 12, solidHeader = TRUE,
-              status = "primary", dataTableOutput("kota_table"))
-        ),
-        
-        fluidRow(
-          box(title = div(style = "font-size: 20px; font-weight: bold;", "Daya Tarik Wisata"), width = 12,
-              p("Menurut Cooper dkk (1995: 81), terdapat 4 (empat) komponen yang harus dimiliki oleh sebuah objek wisata, yaitu:"),
-              tags$ul(
-                tags$li("Attraction: Daya tarik utama yang membuat wisatawan tertarik."),
-                tags$li("Accessibility: Kemudahan akses menuju objek wisata."),
-                tags$li("Amenity: Fasilitas yang mendukung kenyamanan wisatawan."),
-                tags$li("Ancillary: Layanan tambahan yang meningkatkan pengalaman wisata.")
-              ),
-              dataTableOutput("kabupaten_table"),
-              solidHeader = TRUE,
-              status = "primary",
-              style = "background-color: #f9f9f9; border-radius: 10px; padding: 15px; margin-bottom: 15px;"
-          )
-        ),
-        
-        fluidRow(
-          box(title = div(style = "font-size: 20px; font-weight: normal;","Perbandingan Kabupaten"), width = 12,
-              solidHeader = TRUE,
-              status = "primary",
-              uiOutput("filter_kota_comparison"),
-              tableOutput("comparison_results")
-          ),
-          box(title = div(style = "font-size: 20px; font-weight: normal;","Visualisasi Perbandingan"), width = 12,
-              solidHeader = TRUE,
-              status = "primary",
-              fluidRow(
-                column(6, plotOutput("jumlah_wisatawan_plot")),
-                column(6, plotOutput("pdrb_plot")),
-                column(6, plotOutput("jumlah_wisata_plot")),
-                column(6, plotOutput("rata_rating_plot")),
-                column(6, plotOutput("rata_ulasan_plot"))  
-              )
-          )
-        ),
-        fluidRow(
-          box(title = div(style = "font-size: 20px; font-weight: normal;","Pilih Variabel"), width = 4, 
-              solidHeader = TRUE,
-              status = "primary",
-              uiOutput("filter_variabel_numeric")
-              
-          ),
-            box(title = div(style = "font-size: 20px; font-weight: bold;", "Evaluasi dan Interpretasi"), width = 8,
-                solidHeader = TRUE,
-                status = "primary",
-                verbatimTextOutput("scatter_plot_evaluation"),
-                style = "background-color: #ffffff; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);"
-          )
-        ),
-        fluidRow(
-          box(title = div(style = "font-size: 20px; font-weight: bold;", "Scatter Plot"), width = 12,solidHeader = TRUE,
-              status = "primary",
-              plotOutput("scatter_plot"),
-              style = "background-color: #ffffff; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);"
-          )
-        )
-      ),
-      
-      ###----------------------------- Kecamatan ---------------------------------
-      tabItem(
-        tabName = "kecamatan",
-        fluidRow(
-          box(title = div(style = "font-size: 20px; font-weight: bold;","Filter Kecamatan"), width = 12, solidHeader = TRUE,
-              status = "primary", style = "background-color: #e7f3ff;", uiOutput("filter_kecamatan")),
-          box(title = div(style = "font-size: 20px; font-weight: bold;","Data Kecamatan"), width = 12, solidHeader = TRUE,
-              status = "primary", dataTableOutput("kecamatan_table")),
-          box(title = div(style = "font-size: 20px; font-weight: bold;", "Top 5 Wisata Terbaik"), width = 12,solidHeader = TRUE,
-              status = "primary",dataTableOutput("top5_wisata_tableKec"),style = "background-color: #ffffff; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);"),
-          box(title = div(style = "font-size: 20px; font-weight: bold;","Distribusi Wisata Berdasarkan Kelurahan"), width = 12,solidHeader = TRUE,
-              status = "primary", plotOutput("kelurahanPlot")),
-          box(title = div(style = "font-size: 20px; font-weight: bold;","Distribusi Rating Wisata Berdasarkan Kelurahan"), width = 12, solidHeader = TRUE,
-              status = "primary",plotOutput("ratingKelurahanPlot")),
-          box(title = div(style = "font-size: 20px; font-weight: bold;","Rata-rata Harga Tiket Berdasarkan Kelurahan"), width = 12, solidHeader = TRUE,
-              status = "primary",plotOutput("hargaKelurahanPlot")),
-          box(title = div(style = "font-size: 20px; font-weight: bold;","Jumlah Ulasan Berdasarkan Kelurahan"), width = 12, solidHeader = TRUE,
-              status = "primary", plotOutput("ulasanKelurahanPlot"))
-        )
-      ),
-      
-      ###----------------------------- Team ---------------------------------
-      tabItem(
-        tabName = "info",
-        h2(
-          div(
-            style = "font-size: 36px; font-weight: bold; color: #000; background-color: #f8e5b3; padding: 20px; border-radius: 10px;",
-            "Our Amazing Team"
-          ),
-          align = "center"
-        ),
-        fluidRow(
-          column(12, align = "center",
-                 p(
-                   HTML("Need Help? <strong>Contact Us!</strong>"),
-                   style = "font-size: 18px; color: #555; background-color: #f8e5b3; padding: 15px; border-radius: 5px; margin-top;"
-                 )
-          )
-        ),
-        
-        fluidRow(
-          column(12, align = "center",
-                 actionButton("chat_whatsapp_team", "Chat via WhatsApp", icon = icon("whatsapp"), 
-                              style = "background-color: #25D366; color: white; font-weight: bold;")
-          )
-        ),
-        fluidRow(
-          column(12, align = "center",
-                 img(src = "https://media.giphy.com/media/3o7buirY8g0g0g0g0g/giphy.gif", 
-                     width = "100%", style = "border-radius:10px; margin-bottom:15px;")
-          )
-        ),
-        
-        fluidRow(
-          box(
-            title = div(style = "font-size: 20px; font-weight: bold;","Frontend Developer- Ngurah Sentana"),
-            status = "warning",
-            solidHeader = TRUE,
-            width = 6,
-            collapsible = TRUE,
-            collapsed = TRUE,
-            img(src = "https://media.licdn.com/dms/image/v2/C4E03AQGHxSavWR0yQg/profile-displayphoto-shrink_200_200/0/1623592048266", 
-                width = "100%", style = "border-radius:10px; margin-bottom:15px;"),
-            tags$a(href = "https://www.instagram.com/ngurahsentana24", class = "btn btn-primary btn-block", 
-                   icon("instagram"), " Instagram"),
-            tags$a(href = "https://github.com/ngurahsentana24", class = "btn btn-dark btn-block",
-                   icon("github"), " GitHub")
-          ),
-          box(
-            title = div(style = "font-size: 20px; font-weight: bold;","Technical Writer - Fani Fahira"),
-            status = "warning",
-            solidHeader = TRUE,
-            width = 6,
-            collapsible = TRUE,
-            collapsed = TRUE,
-            img(src = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTlLaFt95PU641AOqkZTkjXAGgYLjK7zn5zWg&s", 
-                width = "100%", style = "border-radius:10px; margin-bottom:15px;"),
-            tags$a(href = "https://www.instagram.com/fanifahiraa/", class = "btn btn-primary btn-block", 
-                   icon("instagram"), " Instagram"),
-            tags$a(href = "https://github.com/fanifahira", class = "btn btn-dark btn-block",
-                   icon("github"), " GitHub")
-          ),
-          box(
-            title = div(style = "font-size: 20px; font-weight: bold;","Database Manager - Desy"),
-            status = "warning",
-            solidHeader = TRUE,
-            width = 6,
-            collapsible = TRUE,
-            collapsed = TRUE,
-            img(src = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTlLaFt95PU641AOqkZTkjXAGgYLjK7zn5zWg&s", 
-                width = "100%", style = "border-radius:10px; margin-bottom:15px;"),
-            tags$a(href = "https://www.instagram.com/desy_endriani", class = "btn btn-primary btn-block", 
-                   icon("instagram"), " Instagram"),
-            tags$a(href = "https://github.com/desyendriani", class = "btn btn-dark btn-block",
-                   icon("github"), " GitHub")
-          ),
-          box(
-            title = div(style = "font-size: 20px; font-weight: bold;","Backend Developer - Sunan"),
-            status = "warning",
-            solidHeader = TRUE,
-            width = 6,
-            collapsible = TRUE,
-            collapsed = TRUE,
-            img(src = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTlLaFt95PU641AOqkZTkjXAGgYLjK7zn5zWg&s", 
-                width = "100%", style = "border-radius:10px; margin-bottom:15px;"),
-            tags$a(href = "https://www.instagram.com/m_sunan25?igsh=amxzZHFjanc4dXdv&utm_source=qr", class = "btn btn-primary btn-block", 
-                   icon("instagram"), " Instagram"),
-            tags$a(href = "https://github.com/mhmmd25", class = "btn btn-dark btn-block",
-                   icon("github"), " GitHub")
-          ),
-          box(
-            title = div(style = "font-size: 20px; font-weight: bold;","Designer DB - Latifah Zahra"),
-            status = "warning",
-            solidHeader = TRUE,
-            width = 6,
-            collapsible = TRUE,
-            collapsed = TRUE,
-            img(src = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTlLaFt95PU641AOqkZTkjXAGgYLjK7zn5zWg&s", 
-                width = "100%", style = "border-radius:10px; margin-bottom:15px;"),
-            tags$a(href = "https://www.instagram.com/lzrara15/", class = "btn btn-primary btn-block", 
-                   icon("instagram"), " Instagram"),
-            tags$a(href = "https://github.com/zahralatifah", class = "btn btn-dark btn-block",
-                   icon("github"), " GitHub")
-          )
-        )
-      )
-    )
-  )
-)
-
 #--------------------Server(Tampilan Back-End) ---------------
 server <- function(input, output, session) {
+  observeEvent(input$start_button, {
+    # Hide the main content when the button is clicked
+    shinyjs::hide("main_content")  # Hide the entire main content
+    
+    # Switch to the dashboard page (e.g., "beranda" tab)
+    updateTabItems(session, "sidebar", selected = "beranda")  # Change "beranda" to the desired tab name
+  })
   
   ##------------------------  Home ---------------------------------
   
@@ -562,7 +16,17 @@ server <- function(input, output, session) {
       list(
         "https://d2s1u1uyrl4yfi.cloudfront.net/disparbud/slideshow/cc100156692eb022566b0739a5369349.webp", 
         "https://d2s1u1uyrl4yfi.cloudfront.net/disparbud/slideshow/062aa4b1ae5e52807ab7d57181caeafc.webp", 
-        "https://d2s1u1uyrl4yfi.cloudfront.net/disparbud/slideshow/6ba3daa6b33667875dd1187e9c15893b.webp"
+        "https://d2s1u1uyrl4yfi.cloudfront.net/disparbud/slideshow/6ba3daa6b33667875dd1187e9c15893b.webp",
+        "https://github.com/desyendriani/MDS_Kelompok_6/blob/main/Image/Curug%20Cigentis%20-%201.jpg?raw=true",
+        "https://github.com/desyendriani/MDS_Kelompok_6/blob/main/Image/Curug%20Putri%20Palutungan%20-%201.jpeg?raw=true",
+        "https://github.com/desyendriani/MDS_Kelompok_6/blob/main/Image/Curug%20Sidomba%20-%202.jpg?raw=true",
+        "https://github.com/desyendriani/MDS_Kelompok_6/blob/main/Image/Gunung%20Papandayan%20-%201.jpg?raw=true",
+        "https://github.com/desyendriani/MDS_Kelompok_6/blob/main/Image/Kampung%20Adat%20Ciptagelar%20-%202.png?raw=true",
+        "https://github.com/desyendriani/MDS_Kelompok_6/blob/main/Image/Pantai%20Batu%20Hiu%20-%202.jpg?raw=true",
+        "https://github.com/desyendriani/MDS_Kelompok_6/blob/main/Image/Taruma%20Leisure%20Waterpark%20-%202.jpg?raw=true",
+        "https://raw.githubusercontent.com/desyendriani/MDS_Kelompok_6/refs/heads/main/Image/Curug%20Cikondang%20-%201.webp",
+        "https://raw.githubusercontent.com/desyendriani/MDS_Kelompok_6/refs/heads/main/Image/Taman%20Safari%20-%202.webp",
+        "https://raw.githubusercontent.com/desyendriani/MDS_Kelompok_6/refs/heads/main/Image/Waduk%20Darma%20-%201.webp"
       ), height = 400, width = "100%"
     ) + settings(autoplay = TRUE, autoplaySpeed = 3000, dots = TRUE)
   })
@@ -570,7 +34,7 @@ server <- function(input, output, session) {
   ##------------------------  Wisata ---------------------------------
   
   #======================= Data Wisata =======================#
-  wisata_data <- data_gabungan
+  wisata_data <- wisata_data
   
   #======================= Filter Wisata =======================#
   output$filter_wisata <- renderUI({
@@ -609,28 +73,35 @@ server <- function(input, output, session) {
   observe({
     filtered_data <- filtered_wisata()
     
-    if (!is.null(filtered_data) && nrow(filtered_data) > 0) {
-      leafletProxy("wisata_map", data = filtered_data) %>%
+    # Check for valid coordinates
+    valid_data <- filtered_data %>%
+      filter(!is.na(Latitude) & !is.na(Longitude) & is.finite(Latitude) & is.finite(Longitude))
+    
+    if (nrow(valid_data) > 0) {
+      leafletProxy("wisata_map", data = valid_data) %>%
         clearMarkers() %>%
         addMarkers(
           lng = ~Longitude, lat = ~Latitude,
           popup = ~paste0(
             "<div style='font-family: Arial, sans-serif; width: 280px; padding: 10px; background: #f9f9f9; border-radius: 8px; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); text-align: center;'>
-            <h4 style='margin: 5px 0; color: #333; font-size: 16px;'>", Nama_Wisata, "</h4>
-            <img src='", Image, "' width='260px' height='150px' style='border-radius: 6px; margin-bottom: 8px;'>
-            <p style='font-size: 13px; color: #666; margin-bottom: 5px;'><b>Nama_Kabkot:</b> ", Nama_Kabkot, "</p>
-            <p style='font-size: 14px; font-weight: bold; color: #ff9800; margin-bottom: 5px;'>
-              ⭐ ", Rating, " | ", Jumlah_Ulasan, " Ulasan</p>
-            <p style='font-size: 12px; color: #444; text-align: justify;'>", Deskripsi, "</p>
-          </div>"
+          <h4 style='margin: 5px 0; color: #333; font-size: 16px;'>", Nama_Wisata, "</h4>
+          <img src='", Image, "' width='260px' height='150px' style='border-radius: 6px; margin-bottom: 8px;'>
+          <p style='font-size: 13px; color: #666; margin-bottom: 5px;'><b>Nama_Kabkot:</b> ", Nama_Kabkot, "</p>
+          <p style='font-size: 14px; font-weight: bold; color: #ff9800; margin-bottom: 5px;'>
+            ⭐ ", Rating, " | ", Jumlah_Ulasan, " Ulasan</p>
+          <p style='font-size: 12px; color: #444; text-align: justify;'>", Deskripsi, "</p>
+        </div>"
           )
         ) %>%
         addCircleMarkers(
           lng = ~Longitude, lat = ~Latitude,
           radius = 8, color = "#ff5722", fill = TRUE, fillOpacity = 0.7
         ) %>%
-        setView(lng = mean(filtered_data$Longitude, na.rm = TRUE), 
-                lat = mean(filtered_data$Latitude, na.rm = TRUE), zoom = 10)
+        setView(lng = mean(valid_data$Longitude, na.rm = TRUE), 
+                lat = mean(valid_data$Latitude, na.rm = TRUE), zoom = 10)
+    } else {
+      leafletProxy("wisata_map") %>%
+        clearMarkers()  # Clear markers if no valid data
     }
   })
   
@@ -669,7 +140,6 @@ server <- function(input, output, session) {
     # Get the top 5 based on rating
     top5_data <- filtered_data %>%
       arrange(desc(Rating)) %>%
-      head(20) %>%  # Change to head(5) to get the top 5
       select(Nama_Wisata, Nama_Kabkot, Rating, Jumlah_Ulasan)  # Select relevant columns
     
     datatable(top5_data, selection = 'single',options = list(scrollX = TRUE))
@@ -703,9 +173,15 @@ server <- function(input, output, session) {
       # Create UI output for the top rated tourist attraction details
       selected_data <- top_rated_data
     } else {
-      # Get the selected data
+      # Get the selected data from filtered_wisata
       selected_data <- filtered_wisata()[selected_row, ]  # Use the filtered data
     }
+    
+    # Check if selected_data has valid latitude and longitude
+    if (is.na(selected_data$Latitude) || is.na(selected_data$Longitude)) {
+      return(h4("Data lokasi tidak tersedia."))
+    }
+    
     # Create Google Maps link
     gmaps_url <- paste0("https://www.google.com/maps/dir/?api=1&origin=Bandung&destination=", 
                         selected_data$Latitude, ",", selected_data$Longitude)
@@ -873,6 +349,7 @@ server <- function(input, output, session) {
     
     ggplot(wisata_data, aes(x = Tipe_Wisata)) + 
       geom_bar(fill = "#69b3a2", color = "black", width = 0.6) +
+      geom_text(stat = 'count', aes(label = ..count..), vjust = -0.5, size = 5) +  # Menambahkan label jumlah
       labs(
         title = "Distribusi Tipe Wisata",
         x = "Tipe Wisata",
@@ -880,8 +357,9 @@ server <- function(input, output, session) {
       ) +
       theme_minimal(base_size = 14) +
       theme(
-        plot.title = element_text(hjust = 0.5, face = "bold"),
-        axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1),
+        plot.title = element_text(hjust = 0.5, face = "bold", size = 16, color = "#2c3e50"),
+        axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1, size = 12),
+        axis.text.y = element_text(size = 12),
         panel.grid.major.x = element_blank(),
         panel.grid.minor = element_blank()
       )
@@ -889,7 +367,8 @@ server <- function(input, output, session) {
   
   # Visualisasi Rating Wisata
   output$ratingPlot <- renderPlot({
-    ggplot(wisata_data, aes(x = Rating)) +
+    # Create the histogram and store the counts
+    hist_data <- ggplot(wisata_data, aes(x = Rating)) +
       geom_histogram(bins = 10, fill = "#1f77b4", color = "white", alpha = 0.8) +
       labs(
         title = "Distribusi Rating Wisata",
@@ -903,11 +382,19 @@ server <- function(input, output, session) {
         axis.title = element_text(face = "bold"),
         panel.grid.minor = element_blank(),
         panel.grid.major.x = element_blank()
-      ) +
+      )
+    
+    # Get the maximum count from the histogram
+    max_count <- ggplot_build(hist_data)$data[[1]]$count %>% max(na.rm = TRUE)
+    
+    # Add the mean line and text annotation
+    hist_data +
       geom_vline(aes(xintercept = mean(Rating, na.rm = TRUE)), 
                  color = "red", linetype = "dashed", linewidth = 1) +
-      annotate("text", x = mean(wisata_data$Rating, na.rm = TRUE), y = max(table(wisata_data$Rating)) * 0.9, 
-               label = "Mean", color = "red", fontface = "bold", vjust = -0.5)
+      geom_text(aes(x = mean(Rating, na.rm = TRUE), 
+                    y = max_count * 0.9, 
+                    label = "Mean"), 
+                color = "red", fontface = "bold", vjust = -0.5)
   })
   
   #======================= Clustering =======================#
@@ -921,7 +408,10 @@ server <- function(input, output, session) {
       summarise(
         Rata_Rata_Rating = mean(Rating, na.rm = TRUE),
         Rata_Rata_Ulasan = mean(Jumlah_Ulasan, na.rm = TRUE),
-        Rata_Rata_Harga_Tiket= mean(Harga_Tiket_Bersih, na.rm = TRUE)  # Use the correct column name
+        Rata_Rata_Harga_Tiket = mean(Harga_Tiket_Bersih, na.rm = TRUE),
+        Jumlah_Wisatawan = sum(Jumlah_Wisatawan, na.rm = TRUE),  # Sum of tourists
+        Jumlah_Penduduk = sum(Jml_pddk, na.rm = TRUE),  # Sum of population
+        PDRB = sum(PDRB, na.rm = TRUE)  # Sum of PDRB
       ) %>%
       na.omit()  # Remove NA
     
@@ -950,7 +440,10 @@ server <- function(input, output, session) {
       summarise(
         Rata_Rata_Rating = mean(Rating, na.rm = TRUE),
         Rata_Rata_Ulasan = mean(Jumlah_Ulasan, na.rm = TRUE),
-        Rata_Rata_Harga_Tiket = mean(Harga_Tiket_Bersih, na.rm = TRUE)  # Use the correct column name
+        Rata_Rata_Harga_Tiket = mean(Harga_Tiket_Bersih, na.rm = TRUE),
+        Jumlah_Wisatawan = sum(Jumlah_Wisatawan, na.rm = TRUE),  # Sum of tourists
+        Jumlah_Penduduk = sum(Jml_pddk, na.rm = TRUE),  # Sum of population
+        PDRB = sum(PDRB, na.rm = TRUE)  # Sum of PDRB
       ) %>%
       na.omit()
     
@@ -962,10 +455,10 @@ server <- function(input, output, session) {
     data_clustering$Cluster <- as.factor(kmeans_result$cluster)
     
     # Visualize clustering
-    ggplot(data_clustering, aes(x = Rata_Rata_Harga_Tiket , y = Rata_Rata_Ulasan, color = Cluster, label = Nama_Kabkot)) +
+    ggplot(data_clustering, aes(x = Jumlah_Wisatawan, y = PDRB, color = Cluster, label = Nama_Kabkot)) +
       geom_point(size = 4, alpha = 0.7) +
       geom_text(hjust = 0.5, vjust = -0.8, size = 3, check_overlap = TRUE) +
-      labs(title = "Clustering Kabupaten", x = "Rata_Rata_Harga_Tiket", y = "Rata-rata Ulasan") +
+      labs(title = "Clustering Kabupaten", x = "Jumlah Wisatawan", y = "PDRB") +
       theme_minimal() +
       scale_color_brewer(palette = "Set1")
   })
@@ -1029,7 +522,7 @@ server <- function(input, output, session) {
     selectInput(
       inputId = "kota_pilihan",
       label = "Pilih Kabupaten/Kota",
-      choices = c("Semua", unique(data_gabungan$Nama_Kabkot)), 
+      choices = c("Semua", unique(wisata_data$Nama_Kabkot)), 
       selected = "Semua"
     )
   })
@@ -1051,11 +544,11 @@ server <- function(input, output, session) {
     
     filtered_data <- wisata_data[wisata_data$Nama_Kabkot == input$kota_pilihan | input$kota_pilihan == "Semua", ]
     
-    ggplot(filtered_data, aes(x = Tipe_Wisata, fill = Tipe_Wisata)) +
+    ggplot(filtered_data, aes(x = reorder(Tipe_Wisata, -table(Tipe_Wisata)[Tipe_Wisata]), fill = Tipe_Wisata)) +
       geom_bar(stat = "count", color = "black", width = 0.7, show.legend = FALSE) +
       geom_text(stat = "count", aes(label = ..count..), 
                 vjust = -0.5, size = 5, fontface = "bold", color = "black") +
-      scale_fill_brewer(palette = "Dark2") +  # Use "Dark2" color palette
+      scale_fill_brewer(palette = "Dark2") +  # Warna tetap konsisten
       labs(
         title = paste("Distribusi Tipe Wisata di", input$kota_pilihan),
         x = "Tipe Wisata",
@@ -1072,7 +565,8 @@ server <- function(input, output, session) {
         panel.background = element_rect(fill = "white", color = "black"),
         plot.background = element_rect(fill = "white")
       ) +
-      scale_y_continuous(expand = expansion(mult = c(0, 0.1)), labels = comma)  # Add extra space above bars
+      scale_y_continuous(expand = expansion(mult = c(0, 0.1)), labels = scales::comma)
+    # Add extra space above bars
   })
   
   #======================= Visualisasi Distribusi Kecamatan =======================#
@@ -1147,8 +641,7 @@ server <- function(input, output, session) {
         panel.grid.minor = element_blank(),
         panel.grid.major.y = element_blank(),
         panel.grid.major.x = element_line(color = "grey", linewidth = 0.5)
-      ) +
-      geom_text(aes(label = round(Rata_Rating, 2)), hjust = -0.2, size = 4, color = "black")  # Add label for average rating
+      )
   })
   
   #======================= Visualisasi Total Ulasan Berdasarkan Kecamatan =======================#
@@ -1195,9 +688,9 @@ server <- function(input, output, session) {
     
     # Filter data based on selected Kabupaten
     filtered_data <- if (input$kota_pilihan == "Semua") {
-      data_gabungan
+      wisata_data
     } else {
-      data_gabungan[data_gabungan$Nama_Kabkot == input$kota_pilihan, ]
+      wisata_data[wisata_data$Nama_Kabkot == input$kota_pilihan, ]
     }
     
     jumlah_wisata <- nrow(filtered_data)  # Count the number of tourist attractions
@@ -1216,9 +709,9 @@ server <- function(input, output, session) {
     
     # Filter data based on selected Kabupaten
     filtered_data <- if (input$kota_pilihan == "Semua") {
-      data_gabungan
+      wisata_data
     } else {
-      data_gabungan[data_gabungan$Nama_Kabkot == input$kota_pilihan, ]
+      wisata_data[wisata_data$Nama_Kabkot == input$kota_pilihan, ]
     }
     
     jumlah_restoran <- sum(filtered_data$Jumlah_Restoran, na.rm = TRUE)  # Assuming you have a column for restaurants
@@ -1237,9 +730,9 @@ server <- function(input, output, session) {
     
     # Filter data based on selected Kabupaten
     filtered_data <- if (input$kota_pilihan == "Semua") {
-      data_gabungan
+      wisata_data
     } else {
-      data_gabungan[data_gabungan$Nama_Kabkot == input$kota_pilihan, ]
+      wisata_data[wisata_data$Nama_Kabkot == input$kota_pilihan, ]
     }
     
     jumlah_penduduk <- sum(filtered_data$Jml_pddk, na.rm = TRUE)  # Assuming you have a column for population
@@ -1258,12 +751,12 @@ server <- function(input, output, session) {
     
     # Filter data based on selected Kabupaten
     filtered_data <- if (input$kota_pilihan == "Semua") {
-      data_gabungan
+      wisata_data
     } else {
-      data_gabungan[data_gabungan$Nama_Kabkot == input$kota_pilihan, ]
+      wisata_data[wisata_data$Nama_Kabkot == input$kota_pilihan, ]
     }
     
-    jumlah_wisatawan <- sum(filtered_data$`Jumlah Wisatawan`, na.rm = TRUE)  # Assuming you have a column for tourists
+    jumlah_wisatawan <- sum(filtered_data$Jumlah_Wisatawan, na.rm = TRUE)  # Assuming you have a column for tourists
     
     valueBox(
       value = tags$div(style = "font-size: 40px; font-weight: bold;", formatC(jumlah_wisatawan, format = "f", big.mark = ".", decimal.mark = ",", digits = 0)),
@@ -1279,9 +772,9 @@ server <- function(input, output, session) {
     
     # Filter data based on selected Kabupaten
     filtered_data <- if (input$kota_pilihan == "Semua") {
-      data_gabungan
+      wisata_data
     } else {
-      data_gabungan[data_gabungan$Nama_Kabkot == input$kota_pilihan, ]
+      wisata_data[wisata_data$Nama_Kabkot == input$kota_pilihan, ]
     }
     
     pdrb_value <- sum(filtered_data$PDRB, na.rm = TRUE)  # Assuming you have a column for PDRB
@@ -1300,9 +793,9 @@ server <- function(input, output, session) {
     
     # Filter data based on selected Kabupaten
     filtered_data <- if (input$kota_pilihan == "Semua") {
-      data_gabungan
+      wisata_data
     } else {
-      data_gabungan[data_gabungan$Nama_Kabkot == input$kota_pilihan, ]
+      wisata_data[wisata_data$Nama_Kabkot == input$kota_pilihan, ]
     }
     
     jumlah_masjid <- sum(filtered_data$Jumlah_Masjid, na.rm = TRUE)  # Assuming you have a column for mosques
@@ -1318,8 +811,8 @@ server <- function(input, output, session) {
   #======================= Filter untuk Perbandingan Kabupaten =======================#
   output$filter_kota_comparison <- renderUI({
     tagList(
-      selectInput("kota_pilihan_1", "Pilih Kabupaten/Kota 1", choices = unique(data_gabungan$Nama_Kabkot), selected = unique(data_gabungan$Nama_Kabkot)[1]),
-      selectInput("kota_pilihan_2", "Pilih Kabupaten/Kota 2", choices = unique(data_gabungan$Nama_Kabkot), selected = unique(data_gabungan$Nama_Kabkot)[2])
+      selectInput("kota_pilihan_1", "Pilih Kabupaten/Kota 1", choices = unique(wisata_data$Nama_Kabkot), selected = unique(wisata_data$Nama_Kabkot)[1]),
+      selectInput("kota_pilihan_2", "Pilih Kabupaten/Kota 2", choices = unique(wisata_data$Nama_Kabkot), selected = unique(wisata_data$Nama_Kabkot)[2])
     )
   })
   
@@ -1335,7 +828,7 @@ server <- function(input, output, session) {
     comparison_data <- data.frame(
       Kabupaten = c(input$kota_pilihan_1, input$kota_pilihan_2),
       Jumlah_Wisata = c(nrow(data_kota_1), nrow(data_kota_2)),
-      Jumlah_Wisatawan = c(sum(data_kota_1$`Jumlah Wisatawan`, na.rm = TRUE), sum(data_kota_2$`Jumlah Wisatawan`, na.rm = TRUE)),
+      Jumlah_Wisatawan = c(sum(data_kota_1$Jumlah_Wisatawan, na.rm = TRUE), sum(data_kota_2$Jumlah_Wisatawan, na.rm = TRUE)),
       PDRB = c(sum(data_kota_1$PDRB, na.rm = TRUE), sum(data_kota_2$PDRB, na.rm = TRUE)),
       Rata_Rata_Rating = c(mean(as.numeric(data_kota_1$Rating), na.rm = TRUE), 
                            mean(as.numeric(data_kota_2$Rating), na.rm = TRUE)),
@@ -1360,11 +853,20 @@ server <- function(input, output, session) {
                            mean(as.numeric(data_kota_2$Rating), na.rm = TRUE))
     )
     
-    ggplot(comparison_data, aes(x = Kabupaten, y = Rata_Rata_Rating, fill = Kabupaten)) +
-      geom_bar(stat = "identity") +
-      geom_text(aes(label = round(Rata_Rata_Rating, 2)), vjust = -0.5, size = 5) +
+    ggplot(comparison_data, aes(x = Kabupaten, y = Rata_Rata_Rating, fill = as.factor(Kabupaten))) +
+      geom_bar(stat = "identity", color = "black") +  # Outline hitam agar lebih kontras
+      geom_text(aes(label = round(Rata_Rata_Rating, 2)), vjust = -0.5, size = 5, color = "white", fontface = "bold") +
+      scale_fill_manual(values = rep(c("#007bac", "#f39c12"), length.out = length(unique(comparison_data$Kabupaten)))) + 
       labs(title = "Rata-rata Rating", x = "Kabupaten", y = "Rata-rata Rating") +
-      theme_minimal()
+      theme_minimal(base_size = 14) +
+      theme(
+        plot.title = element_text(hjust = 0.5, face = "bold", size = 16, color = "#2c3e50"),
+        axis.text = element_text(size = 12, color = "#222222"),
+        axis.title = element_text(face = "bold", color = "#2c3e50"),
+        panel.grid.minor = element_blank(),
+        panel.grid.major.x = element_line(color = "#bbbbbb", linewidth = 0.5)
+      )
+    
   })
   
   #======================= Plot Rata-rata Ulasan =======================# 
@@ -1382,11 +884,20 @@ server <- function(input, output, session) {
                            sum(data_kota_2$Jumlah_Ulasan, na.rm = TRUE))
     )
     
-    ggplot(comparison_data, aes(x = Kabupaten, y = Rata_Rata_Ulasan, fill = Kabupaten)) +
-      geom_bar(stat = "identity") +
-      geom_text(aes(label = round(Rata_Rata_Ulasan, 2)), vjust = -0.5, size = 5) +
-      labs(title = "Jumlah Ulasan", x = "Kabupaten", y = "Jumlah Ulasan") +
-      theme_minimal()
+    ggplot(comparison_data, aes(x = Kabupaten, y = Rata_Rata_Ulasan, fill = as.factor(Kabupaten))) +
+      geom_bar(stat = "identity", color = "black") +  # Outline hitam untuk kontras
+      geom_text(aes(label = round(Rata_Rata_Ulasan, 2)), vjust = -0.5, size = 5, color = "white", fontface = "bold") +
+      scale_fill_manual(values = rep(c("#007bac", "#f39c12"), length.out = length(unique(comparison_data$Kabupaten)))) + 
+      labs(title = "Rata-Rata Ulasan", x = "Kabupaten", y = "Rata-Rata Ulasan") +
+      theme_minimal(base_size = 14) +
+      theme(
+        plot.title = element_text(hjust = 0.5, face = "bold", size = 16, color = "#2c3e50"),
+        axis.text = element_text(size = 12, color = "#222222"),
+        axis.title = element_text(face = "bold", color = "#2c3e50"),
+        panel.grid.minor = element_blank(),
+        panel.grid.major.x = element_line(color = "#bbbbbb", linewidth = 0.5)
+      )
+    
   })
   
   #======================= Plot Jumlah Wisata =======================# 
@@ -1403,11 +914,20 @@ server <- function(input, output, session) {
       Jumlah_Wisata = c(nrow(data_kota_1), nrow(data_kota_2))
     )
     
-    ggplot(comparison_data, aes(x = Kabupaten, y = Jumlah_Wisata, fill = Kabupaten)) +
-      geom_bar(stat = "identity") +
-      geom_text(aes(label = Jumlah_Wisata), vjust = -0.5, size = 5) +
+    ggplot(comparison_data, aes(x = Kabupaten, y = Jumlah_Wisata, fill = as.factor(Kabupaten))) +
+      geom_bar(stat = "identity", color = "black") +  # Outline hitam agar lebih kontras
+      geom_text(aes(label = Jumlah_Wisata), vjust = -0.5, size = 5, color = "white", fontface = "bold") +
+      scale_fill_manual(values = rep(c("#007bac", "#f39c12"), length.out = length(unique(comparison_data$Kabupaten)))) + 
       labs(title = "Jumlah Wisata", x = "Kabupaten", y = "Jumlah Wisata") +
-      theme_minimal()
+      theme_minimal(base_size = 14) +
+      theme(
+        plot.title = element_text(hjust = 0.5, face = "bold", size = 16, color = "#2c3e50"),
+        axis.text = element_text(size = 12, color = "#222222"),
+        axis.title = element_text(face = "bold", color = "#2c3e50"),
+        panel.grid.minor = element_blank(),
+        panel.grid.major.x = element_line(color = "#bbbbbb", linewidth = 0.5)
+      )
+    
   })
   
   #======================= Plot Jumlah Wisatawan =======================#
@@ -1424,11 +944,20 @@ server <- function(input, output, session) {
       Jumlah.Wisatawan = c(nrow(data_kota_1), nrow(data_kota_2))
     )
     
-    ggplot(comparison_data, aes(x = Kabupaten, y = Jumlah.Wisatawan, fill = Kabupaten)) +
-      geom_bar(stat = "identity") +
-      geom_text(aes(label = Jumlah.Wisatawan), vjust = -0.5, size = 5) +
+    ggplot(comparison_data, aes(x = Kabupaten, y = Jumlah.Wisatawan, fill = as.factor(Kabupaten))) +
+      geom_bar(stat = "identity", color = "black") +
+      geom_text(aes(label = Jumlah.Wisatawan), vjust = -0.5, size = 5, color = "white", fontface = "bold") +
+      scale_fill_manual(values = rep(c("#007bac", "#f39c12"), length.out = length(unique(comparison_data$Kabupaten)))) + 
       labs(title = "Jumlah Wisatawan", x = "Kabupaten", y = "Jumlah Wisatawan") +
-      theme_minimal()
+      theme_minimal(base_size = 14) +
+      theme(
+        plot.title = element_text(hjust = 0.5, face = "bold", size = 16, color = "#2c3e50"),
+        axis.text = element_text(size = 12, color = "#222222"),
+        axis.title = element_text(face = "bold", color = "#2c3e50"),
+        panel.grid.minor = element_blank(),
+        panel.grid.major.x = element_line(color = "#bbbbbb", linewidth = 0.5)
+      )
+    
   })
   
   #======================= Plot PDRB =======================#
@@ -1445,17 +974,26 @@ server <- function(input, output, session) {
       PDRB = c(nrow(data_kota_1), nrow(data_kota_2))
     )
     
-    ggplot(comparison_data, aes(x = Kabupaten, y = PDRB, fill = Kabupaten)) +
-      geom_bar(stat = "identity") +
-      geom_text(aes(label = PDRB), vjust = -0.5, size = 5) +
+    ggplot(comparison_data, aes(x = Kabupaten, y = PDRB, fill = as.factor(Kabupaten))) +
+      geom_bar(stat = "identity", color = "black") +  # Outline hitam untuk kontras
+      geom_text(aes(label = PDRB), vjust = -0.5, size = 5, color = "white", fontface = "bold") +
+      scale_fill_manual(values = rep(c("#007bac", "#f39c12"), length.out = length(unique(comparison_data$Kabupaten)))) + 
       labs(title = "PDRB", x = "Kabupaten", y = "PDRB") +
-      theme_minimal()
+      theme_minimal(base_size = 14) +
+      theme(
+        plot.title = element_text(hjust = 0.5, face = "bold", size = 16, color = "#2c3e50"),
+        axis.text = element_text(size = 12, color = "#222222"),
+        axis.title = element_text(face = "bold", color = "#2c3e50"),
+        panel.grid.minor = element_blank(),
+        panel.grid.major.x = element_line(color = "#bbbbbb", linewidth = 0.5)
+      )
+    
   })
   
   #======================= Tabel Kabupaten ============================#
   output$kabupaten_table <- renderDataTable({
     # Menghitung jumlah wisata, jumlah peta yang tidak null, jumlah restoran, jumlah masjid, dan rata-rata rating
-    kabupaten_data <- data_gabungan %>%
+    kabupaten_data <- wisata_data %>%
       group_by(Nama_Kabkot) %>%
       summarise(
         Jumlah_Wisata = n(),
@@ -1499,7 +1037,7 @@ server <- function(input, output, session) {
   })
   
   #========================= Pilih Variabel Numeric =========================#
-  numeric_vars <- names(data_gabungan)[sapply(data_gabungan, is.numeric)]
+  numeric_vars <- names(wisata_data)[sapply(wisata_data, is.numeric)]
   
   output$filter_variabel_numeric <- renderUI({
     tagList(
@@ -1514,7 +1052,7 @@ server <- function(input, output, session) {
     selectInput(
       inputId = "kabupaten_rute",
       label = "Pilih Kabupaten/Kota",
-      choices = unique(data_gabungan$Nama_Kabkot), 
+      choices = unique(wisata_data$Nama_Kabkot), 
       selected = NULL,
       multiple = TRUE  # Enable multiple selection
     )
@@ -1594,12 +1132,12 @@ server <- function(input, output, session) {
     output$recommended_route_table <- renderDataTable({
       datatable(recommended_routes, options = list(scrollX = TRUE))
     })
-
-      output$recommended_route_map <- renderLeaflet({
-        leaflet() %>%
-          addTiles() %>%
-          setView(lng = starting_coords[2], lat = starting_coords[1], zoom = 10)
-      })
+    
+    output$recommended_route_map <- renderLeaflet({
+      leaflet() %>%
+        addTiles() %>%
+        setView(lng = starting_coords[2], lat = starting_coords[1], zoom = 10)
+    })
     
     observe({
       leafletProxy("recommended_route_map", data = recommended_routes) %>%
@@ -1619,6 +1157,38 @@ server <- function(input, output, session) {
   
   #======================= Scatter Plot =======================#
   output$scatter_plot <- renderPlot({
+    req(input$x_var, input$y_var)  # Ensure both variables are selected
+    
+    # Filter data based on selected Kabupaten
+    filtered_data <- if (input$kota_pilihan == "Semua") {
+      wisata_data
+    } else {
+      wisata_data[wisata_data$Nama_Kabkot == input$kota_pilihan, ]
+    }
+    
+    # Check if there are enough data points to plot
+    if (nrow(filtered_data) < 2) {
+      return(NULL)  # Return NULL if not enough data
+    }
+    
+    # Create scatter plot
+    ggplot(filtered_data, aes_string(x = input$x_var, y = input$y_var)) +
+      geom_point(color = "#007bff", size = 3, alpha = 0.7) +
+      labs(title = paste("Scatter Plot of", input$x_var, "vs", input$y_var),
+           x = input$x_var,
+           y = input$y_var) +
+      theme_minimal(base_size = 14) +
+      theme(
+        plot.title = element_text(hjust = 0.5, face = "bold", size = 16),
+        axis.text = element_text(size = 12),
+        axis.title = element_text(face = "bold"),
+        panel.grid.minor = element_blank(),
+        panel.grid.major.x = element_line(color = "grey", linewidth = 0.5)
+      )
+  })
+  
+  #======================= Evaluasi Scatter Plot =======================#
+  output$scatter_plot_evaluation <- renderText({
     req(input$kota_pilihan)  # Ensure input is available
     req(input$x_var, input$y_var)  # Ensure both variables are selected
     
@@ -1629,29 +1199,13 @@ server <- function(input, output, session) {
       wisata_data[wisata_data$Nama_Kabkot == input$kota_pilihan, ]
     }
     
-    # Create the scatter plot
-    ggplot(filtered_data, aes_string(x = input$x_var, y = input$y_var)) +
-      geom_point(color = "#007bff", alpha = 2) +
-      labs(title = paste("Scatter Plot of", input$x_var, "vs", input$y_var),
-           x = input$x_var,
-           y = input$y_var) +
-      theme_minimal()
-  })
-  
-  #======================= Evaluasi Scatter Plot =======================#
-  output$scatter_plot_evaluation <- renderText({
-    req(input$kota_pilihan)  # Ensure input is available
-    req(input$x_var, input$y_var)  # Ensure both variables are selected
-    
-    # Filter data based on selected Kabupaten
-    filtered_data <- if (input$kota_pilihan == "Semua") {
-      data_gabungan
-    } else {
-      data_gabungan[data_gabungan$Nama_Kabkot == input$kota_pilihan, ]
-    }
-    
     # Calculate correlation
     correlation <- cor(filtered_data[[input$x_var]], filtered_data[[input$y_var]], use = "complete.obs")
+    
+    # Check if correlation is NA
+    if (is.na(correlation)) {
+      return("Tidak ada cukup data untuk menghitung korelasi.")
+    }
     
     # Create interpretation based on correlation
     interpretation <- if (correlation > 0.7) {
@@ -1726,23 +1280,23 @@ server <- function(input, output, session) {
       slice_max(Jumlah_Wisata, n = 20, with_ties = FALSE)  # Take top 20 without ties
     
     ggplot(kelurahan_data_df, aes(x = reorder(Nama_Kel, Jumlah_Wisata), y = Jumlah_Wisata)) +
-      geom_bar(stat = "identity", fill = "#ff7f0e", color = "black") +
+      geom_bar(stat = "identity", fill = "#007bff", color = "#003366") +
       coord_flip() +
       labs(
-        title = "Top 20 Kelurahan dengan Jumlah Wisata Terbanyak",
+        title = "Top Kelurahan dengan Jumlah Wisata Terbanyak",
         x = "Kelurahan",
         y = "Jumlah Wisata"
       ) +
       theme_minimal(base_size = 14) +
       theme(
-        plot.title = element_text(hjust = 0.5, face = "bold", size = 16),
-        axis.text = element_text(size = 12),
-        axis.title = element_text(face = "bold"),
+        plot.title = element_text(hjust = 0.5, face = "bold", size = 16, color = "#003366"),
+        axis.text = element_text(size = 12, color = "#333333"),
+        axis.title = element_text(face = "bold", color = "#003366"),
         panel.grid.minor = element_blank(),
         panel.grid.major.y = element_blank(),
-        panel.grid.major.x = element_line(color = "grey", linewidth = 0.5)
+        panel.grid.major.x = element_line(color = "#cccccc", linewidth = 0.5)
       ) +
-      geom_text(aes(label = Jumlah_Wisata), hjust = -0.2, size = 4, color = "black")
+      geom_text(aes(label = Jumlah_Wisata), hjust = -0.2, size = 4, color = "#ffffff", fontface = "bold")
   })
   
   #======================= Plot Rating Berdasarkan Kelurahan =======================#
@@ -1766,7 +1320,7 @@ server <- function(input, output, session) {
       geom_bar(stat = "identity", fill = "#1f77b4", color = "black") +
       coord_flip() +
       labs(
-        title = "Top 20 Kelurahan dengan Rata-rata Rating Wisata Tertinggi",
+        title = "Top Kelurahan dengan Rata-rata Rating Wisata Tertinggi",
         x = "Kelurahan",
         y = "Rata-rata Rating"
       ) +
@@ -1798,7 +1352,7 @@ server <- function(input, output, session) {
       geom_bar(stat = "identity", fill = "#2ca02c", color = "black") +
       coord_flip() +
       labs(
-        title = "Top 20 Kelurahan dengan Rata-rata Harga Tiket Tertinggi",
+        title = "Top Kelurahan dengan Rata-rata Harga Tiket Tertinggi",
         x = "Kelurahan",
         y = "Rata-rata Harga Tiket (IDR)"
       ) +
@@ -1830,7 +1384,7 @@ server <- function(input, output, session) {
       geom_bar(stat = "identity", fill = "#ff7f0e", color = "black") +
       coord_flip() +
       labs(
-        title = "Top 20 Kelurahan dengan Jumlah Ulasan Terbanyak",
+        title = "Top Kelurahan dengan Jumlah Ulasan Terbanyak",
         x = "Kelurahan",
         y = "Jumlah Ulasan"
       ) +
@@ -1861,8 +1415,8 @@ server <- function(input, output, session) {
     # Get top 5 attractions based on rating
     top5_data <- filtered_data %>%
       arrange(desc(Rating)) %>%
-      head(5) %>%
-      select(Nama_Wisata, Nama_Kabkot, Rating, Jumlah_Ulasan)  # Select relevant columns
+      select(Nama_Wisata, Nama_Kabkot, Rating, Jumlah_Ulasan) %>%
+      head(5)# Select relevant columns
     
     datatable(top5_data)
   })
@@ -1870,6 +1424,95 @@ server <- function(input, output, session) {
     browseURL("https://wa.me/6287761435287?text=Halo, saya ingin bertanya tentang tim.")
   })
   
+  # Assuming you have the following in your server function
+  filtered_wisata <- reactive({
+    req(input$wisata_tipe)  # Ensure input$wisata_tipe is not NULL
+    req(input$rating_filter)  # Ensure input$rating_filter is not NULL
+    
+    filtered_data <- wisata_data
+    
+    # Filter by Tipe Wisata
+    if (input$wisata_tipe != "Semua") {
+      filtered_data <- filtered_data[filtered_data$Tipe_Wisata == input$wisata_tipe, ]
+    }
+    
+    # Filter by Rating
+    filtered_data <- filtered_data[filtered_data$Rating >= input$rating_filter, ]
+    
+    # Filter by Keyword
+    if (input$keyword_filter != "") {
+      # Tokenize the descriptions
+      tokenized_data <- filtered_data %>%
+        unnest_tokens(word, Deskripsi) %>%
+        filter(!word %in% c(stopwords("en"), custom_stopwords))  # Remove stop words
+      
+      # Check if the keyword is present in the tokenized words
+      keyword_present <- tokenized_data %>%
+        filter(grepl(tolower(input$keyword_filter), word)) %>%
+        distinct(Nama_Wisata)  # Get unique tourist attractions that match the keyword
+      
+      # Filter the original data based on the keyword presence
+      filtered_data <- filtered_data %>%
+        filter(Nama_Wisata %in% keyword_present$Nama_Wisata)
+    }
+    
+    return(filtered_data)
+  })
+  
+  # Daftar stop words kustom
+  custom_stopwords <- c("dan", "atau", "yang", "di", "ke", "dari", "untuk", "adalah", "dengan","ini", "sebagai", "juga", "oleh",
+                        "karena", "selain", "tidak", "kamu", "aku", "ada","sangat", "akan", "bagi", "perlu", "anda", "para", "situ")
+  # Generate the word cloud
+  output$wordcloud <- renderWordcloud2({
+    # Check if there are any descriptions available
+    if (all(is.na(wisata_data$Deskripsi)) || all(trimws(wisata_data$Deskripsi) == "")) {
+      return(NULL)  # Return NULL if there are no descriptions
+    }
+    
+    # Create a text corpus from the descriptions, filtering out empty descriptions
+    corpus <- Corpus(VectorSource(wisata_data$Deskripsi[!is.na(wisata_data$Deskripsi) & trimws(wisata_data$Deskripsi) != ""]))
+    
+    # Preprocess the text
+    corpus <- tm_map(corpus, content_transformer(tolower))  # Convert to lower case
+    corpus <- tm_map(corpus, removePunctuation)  # Remove punctuation
+    corpus <- tm_map(corpus, removeNumbers)  # Remove numbers
+    corpus <- tm_map(corpus, removeWords, c(stopwords("en"), custom_stopwords))  # Remove stopwords
+    corpus <- tm_map(corpus, stripWhitespace)  # Remove extra whitespace
+    
+    # Check if the corpus is empty after preprocessing
+    if (length(corpus) == 0 || sum(sapply(corpus, nchar)) == 0) {
+      return(NULL)  # Return NULL if the corpus is empty
+    }
+    
+    # Create a term-document matrix
+    tdm <- TermDocumentMatrix(corpus)
+    m <- as.matrix(tdm)
+    word_freqs <- sort(rowSums(m), decreasing = TRUE)
+    word_freqs_df <- data.frame(word = names(word_freqs), freq = word_freqs)
+    
+    # Generate the word cloud
+    wordcloud2(word_freqs_df, size = 2.5, color = "random-light")
+  })
+  
+  output$filtered_wisata_table <- renderDataTable({
+    req(filtered_wisata())  # Ensure data is available
+    if (nrow(filtered_wisata()) == 0) {
+      return(NULL)  # If no data, return NULL
+    }
+    
+    datatable(filtered_wisata()[, c("Nama_Wisata", "Nama_Kabkot", "Nama_Kec", "Nama_Kel", "Tipe_Wisata", "Harga_Tiket", "Rating", "Jumlah_Ulasan")])
+  })
+  
+  output$downloadManual <- downloadHandler(
+    filename = function() {
+      "Panduan_User_Web_Jabar.pdf"  # Name of the file to be downloaded
+    },
+    content = function(file) {
+      # Directly redirect to the Google Docs link
+      url <- "https://docs.google.com/document/d/1_41b_k-6Qeo5ULb2Zfd34H3Z_olurHYIcoDjD2Xi0Y4/export?format=pdf"
+      download.file(url, destfile = file, mode = "wb")  # Download file from Google Docs
+    }
+  )
 }
 
 
