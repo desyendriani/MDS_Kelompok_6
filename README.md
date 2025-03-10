@@ -101,7 +101,7 @@ Website **Pariwisata Jawa Barat** dilengkapi dengan berbagai fitur yang mempermu
   - **Visualisasi Data Wisata** 📊<br>
       a. Bar Chart distribusi berdasarkan tipe wisata.<br>
       b. Histogram distribusi berdasarkan Rating wisata. <br>
-      c. Box Plot rata-rata harga tiket berdasarkan tipe wisata. <br>
+      c. Bar Chart rata-rata harga tiket berdasarkan tipe wisata. <br>
       d. Bar Chart jumlah wisata berdasarkan Kabupaten. <br>
            <p align="center">
               <img width="900" height="450" src="https://github.com/desyendriani/MDS_Kelompok_6/blob/main/Image/Dashboard/Fitur%20Visualisasi%20Wisata.jpeg">
