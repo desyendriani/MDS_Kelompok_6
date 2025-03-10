@@ -421,7 +421,7 @@ CREATE TABLE IF NOT EXISTS detail_wisata (
 | - Performance monitoring  | - Database architecture  |
 
 
-<br>
+<br> 
 
 
 | <img src="https://raw.githubusercontent.com/desyendriani/MDS_Kelompok_6/main/Image/Team/Fani.png" width="500"/> |   |
