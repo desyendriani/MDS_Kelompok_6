@@ -78,7 +78,12 @@ Website **Pariwisata Jawa Barat** dilengkapi dengan berbagai fitur yang mempermu
    </p>
    Menampilkan informasi Web Pemerintah Provinsi Jawa Barat.
    <br>
-   
+   - Fitur untuk mengunduh panduan Penggunaan Dashboard App Wisata Jawa Barat
+   <p align="center">
+      <img width="900" height="450" src="https://github.com/desyendriani/MDS_Kelompok_6/blob/main/Image/Dashboard/Panduan%20User%20Manual.jpeg">
+   </p>
+   User manual dapat diunduh dan diakses pada link berikut : https://ipb.link/panduan-user-web-wisata-jabar
+  
 2. **Wisata**<br>
   - Tampilan Menu  **Wisata**
      <p align="center">
@@ -90,7 +95,13 @@ Website **Pariwisata Jawa Barat** dilengkapi dengan berbagai fitur yang mempermu
     - **Peta Interaktif** 🗺️<br>
       Pada dashbord menu detail wisata pengguna akan menemukan 2 peta interaktif, yaitu :<br>
      a. Peta interaktif lokasi destinasi wisata dengan marker dan informasi detail berupa deskripsi, gambar, ulasan dan rating.<br>
+        <p align="center">
+         <img width="900" height="450" src="https://github.com/desyendriani/MDS_Kelompok_6/blob/main/Image/Dashboard/Peta%20interaktif%20lokasi%20dan%20informasi%20destinasi%20wisata.jpeg">
+         </p>
      b. Peta interaktif dari titik lokasi pengguna ke pilihan tujuan destinasi.<br>
+        <p align="center">
+         <img width="900" height="450" src="https://github.com/desyendriani/MDS_Kelompok_6/blob/main/Image/Dashboard/Peta%20interaktif%20rute%20dan%20informasi%20wisata.jpeg">
+         </p>
      
     - **Rekomendasi destinasi wisata** 🗺️<br>
       <p align="center">
