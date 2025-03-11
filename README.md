@@ -83,6 +83,10 @@ Website **Pariwisata Jawa Barat** dilengkapi dengan berbagai fitur yang mempermu
       <img width="900" height="450" src="https://github.com/desyendriani/MDS_Kelompok_6/blob/main/Image/Dashboard/Panduan%20User%20Manual.jpeg">
    </p>
    User manual dapat diunduh dan diakses pada link berikut : https://ipb.link/panduan-user-web-wisata-jabar
+   <p align="center">
+      <img width="700" height="900" src="https://github.com/desyendriani/MDS_Kelompok_6/blob/main/Image/Dashboard/Sampul%20buku%20panduan.png">
+   </p>
+
   
 2. **Wisata**<br>
   - Tampilan Menu  **Wisata**
