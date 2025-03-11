@@ -190,11 +190,18 @@ Menampilkan Informasi Jumlah wisata, Jumlah Restoran, Jumlah Penduduk, Jumlah Wi
 - GitHub
 
 ## :package: Packages R  
-- `shiny` dan `shinydashboard` untuk pembuatan dashboard interaktif.
+- shiny dan shinydashboard untuk pembuatan dashboard interaktif.
+- `shinydashboardPlus` dan `bs4Dash` untuk tampilan dashboard yang lebih fleksibel.
 - `DT` untuk menampilkan data tables.
 - `dplyr` untuk manipulasi data.
-- `ggplot2` untuk visualisasi.
-- `leaflet` untuk peta interaktif.
+- `plotly` untuk grafik interaktif.
+- `slickR` untuk tampilan slider gambar.
+- `readr` untuk membaca data.
+- `writexl` untuk ekspor data ke Excel.
+- `rmarkdown` untuk koneksi dengan rmarkdown.
+- `scales` untuk skala pada visualisasi data.
+- `tm`, `stringr`, dan `tidytext` untuk analisis teks.
+- `wordcloud2` untuk membuat word cloud.
 
 Pada pembuatan Data Base
 - `RMySQL` untuk koneksi dan eksekusi query MySQL dari R.
