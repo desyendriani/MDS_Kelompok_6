@@ -65,8 +65,7 @@ Platfrom ini dikembangkan untuk membantu wisatawan menemukan dan mengeksplorasi 
 🚀 Selamat menjelajah Wisata di Jawa Barat! 😊
 
 ## :film_projector: Demo
-
-[Klik di sini](#) untuk mengakses aplikasi Explore Jabar.
+Aplikasi Explore Jabar dpaat di akses pada link local berikut : http://127.0.0.1:3494/
 
 ## :sparkles: Fitur dan Tampilan Dashboard
 Website **Pariwisata Jawa Barat** dilengkapi dengan berbagai fitur yang mempermudah pengguna dalam menemukan dan menganalisis informasi wisata. Adapun fitur dari setiap Sidebar dari website **Pariwisata Jawa Barat**, sebagai berikut :
